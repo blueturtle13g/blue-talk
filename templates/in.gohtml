@@ -1,0 +1,28 @@
+{{ template "header.gohtml" .}}
+
+<div class="formCon">
+    <div class="cntWide">
+    {{ if .Err }}
+        <div class="center alert alert-danger" role="alert">
+            <h6>{{ .Err }}</h6>
+        {{ if eq .Err "your Password is wrong." }}
+            <h6>have you forgotten your password?<a href="/forgetPass">Get It By Email</a></h6>
+        {{ end}}
+        </div>
+    {{end}}
+    </div>
+  <form class="inForm center" method="post">
+      <div class="cntWide">
+          <h4>Log In</h4>
+      </div>
+    <label for="uORe">User Name | Email</label>
+    <input name="uORe" id="uORe" class="form-control" type="text" required>
+    <label for="password">Password</label>
+    <input name="password" id="password" class="form-control" type="password" required>
+    <div class="inWide">
+      <input type="submit" class="btn btn-success" value="Log In">
+      <br><a href="/register">Or Register</a>
+    </div>
+  </form>
+</div>
+{{ template "footer.gohtml"}}

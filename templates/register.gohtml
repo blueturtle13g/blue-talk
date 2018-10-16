@@ -1,0 +1,57 @@
+{{ template "header.gohtml" .}}
+
+<div class="wide">
+    <div id="submitWarn" class="col-12 warns">
+        <label class="inputErr cols-sm-2 control-label"><strong>Please Fix Errors And Try Again</strong></label>
+    </div>
+</div>
+
+<div class="formCon">
+    <div class="wide">
+          {{ if .Errs }}
+              <div class="alert alert-danger center limit-l" role="alert">
+              {{ range .Errs }}
+                  <ul>
+                      <li><h6>{{ . }}</h6></li>
+                  </ul>
+              {{ end }}
+              </div>
+          {{ end }}
+    </div>
+  <form class="regForm center" method="post">
+      <div class="cntWide">
+          <h4>Register</h4>
+      </div>
+    <div class="row">
+      <div class="col-md-6 col-sm-6">
+        <label for="fname">First Name</label>
+        <input name="fname" id="fname" class="form-control" type="text" required>
+      </div>
+      <div class="col-md-6 col-sm-6">
+        <label for="lname">Last Name</label>
+        <input name="lname" id="lname" class="form-control" type="text" required>
+      </div>
+      <div class="col-md-6 col-sm-6">
+        <label for="username">User Name</label>
+        <input name="username" id="username" class="form-control" type="text" required>
+      </div>
+      <div class="col-md-6 col-sm-6">
+        <label for="email">Email</label>
+        <input name="email" id="email" class="form-control" type="email" required>
+      </div>
+      <div class="col-md-6 col-sm-6">
+        <label for="password">Password</label>
+        <input name="password" id="password" class="form-control" type="password" required>
+      </div>
+      <div class="col-md-6 col-sm-6">
+        <label for="confirm">Confirm Password</label>
+        <input name="confirm" id="password" class="form-control" type="password" required>
+      </div>
+    </div>
+    <div class="inWide">
+      <input type="submit" class="btn btn-success" value="Register">
+      <br><a href="/in">Or Log In</a>
+    </div>
+  </form>
+</div>
+{{ template "footer.gohtml"}}

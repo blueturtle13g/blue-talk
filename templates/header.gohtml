@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <link href="https://fonts.googleapis.com/css?family=Montserrat|Ubuntu" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" type="text/css" href="static/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="static/css/main.css">
+    <script src="/static/js/jquery-3.3.1.min.js"></script>
+      <script src="/static/js/jquery-ui.min.js"></script>
+      <script src="/static/js/popper.min.js"></script>
+      <script src="/static/js/bootstrap.min.js"></script>
+      <title>{{ .Title }}</title>
+  </head>
+  <body>
+    <nav>
+        <a {{if eq .Title "Contact"}} class="navActive" {{end}} href="/contact">Contact</a>
+        <a {{if eq .Title "About"}} class="navActive" {{end}} href="/about">About</a>
+        <a {{if eq .Title "Search"}} class="fa fa-search fa-lg navActive" {{else}} class="fa fa-search fa-lg" {{end}} href="/search" class="fa fa-search fa-lg"></a>
+        <a {{if eq .Title "Blue Talk"}} class="fa fa-home fa-lg navActive" {{else}} class="fa fa-home fa-lg" {{end}} href="/"></a>
+        {{ if .Username }}
+          <a {{if eq .Title "Profile"}} class="fa fa-user fa-lg navActive" {{else}}class="fa fa-user fa-lg"{{end}} href="/profile" ></a>
+          <a href="/out">Log Out</a>
+        {{else}}
+          <a {{if eq .Title "Log In"}} class="navActive" {{end}} href="/in">Log In</a>
+          <a {{if eq .Title "Register"}} class="navActive" {{end}} href="/register">Register</a>
+        {{end}}
+    </nav>

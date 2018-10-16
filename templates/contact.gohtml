@@ -1,0 +1,42 @@
+{{ template "header.gohtml" .}}
+
+<div class="container">
+    {{ if .Cong }}
+        <div class="center alert alert-success" role="alert">
+          <h6>{{ .Cong }}</h6>
+        </div>
+    {{ else if .Errs }}
+        <div class="center alert alert-danger" role="alert">
+      {{ range .Errs }}
+          <ul>
+            <li><h6>{{ . }}</h6></li>
+          </ul>
+      {{ end }}
+        </div>
+    {{ else if .Err }}
+        <div class="center alert alert-danger" role="alert">
+                <h6>{{ .Err }}</h6>
+        </div>
+    {{ end }}
+</div>
+
+<div class="formCon">
+    <form class="inForm center" method="post">
+        <div class="cntWide">
+            <h4>Contact Us</h4>
+        </div>
+
+        <label for="name">Name</label>
+        <input name="name" id="name" class="form-control" type="text" {{if .Name }} value="{{.Name}}" {{end}} required>
+
+        <label for="email">Email</label>
+        <input name="email" id="email" class="form-control" type="email" {{if .Email }} value="{{.Email}}" {{end}} required>
+
+        <label for="text">Email</label>
+        <textarea name="text" class="form-control" id="text" cols="30" rows="10" required>{{if .Text }}{{.Text}}{{end}}</textarea>
+        <div class="cntWide">
+            <input type="submit" class="btn btn-success" value="Send">
+        </div>
+    </form>
+</div>
+{{ template "footer.gohtml"}}

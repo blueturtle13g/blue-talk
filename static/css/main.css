@@ -1,0 +1,167 @@
+* {margin: 0; padding: 0; box-sizing: border-box;}
+
+a {text-decoration: none;}
+
+@media screen and (max-width: 600px) {
+  .limit{
+    width: 80%!important;
+  }
+  .limit-l{
+    width: 90%!important;
+  }
+  nav a{
+    font-size: 13px!important;
+    margin: 3px!important;
+    padding: 6px!important;
+  }
+}
+
+
+.alertBox, #submitWarn{
+  display: none;
+}
+
+.alert{
+  padding: .3rem!important;
+  margin-bottom: 1rem!important;
+}
+
+.alert li {
+  list-style-type:none
+}
+
+.limit-l{
+  width: 500px;
+}
+
+body{
+   font-family: 'Ubuntu', sans-serif;
+}
+
+.margTop{
+  margin-top: 5rem;
+}
+
+.fa-search{
+  cursor: pointer;
+}
+
+.limit{
+  width: 350px;
+}
+
+.wide{
+  width: 100%;
+  text-align: center;
+}
+
+/* Navigation Settings */
+nav {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: bold;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  height: 50px;
+  background: #d7d7d7;
+}
+
+nav a {
+  padding: .8rem;
+  margin: .3rem;
+  color: black;
+  text-transform: uppercase;
+  border-radius: 50%;
+}
+
+.navActive{
+  background: #8e8b8580;
+}
+
+nav a:hover {
+  color: #8778ab;
+  text-decoration: none;
+}
+
+.formCon{
+margin-top: 7rem;
+}
+.formCon label{
+margin-top: .5rem;
+}
+
+.inForm{
+background-color: whitesmoke;
+border-bottom: 2px solid green;
+width: 350px;
+padding: 2rem;
+}
+
+.regForm{
+background-color: whitesmoke;
+border-bottom: 2px solid green;
+width: 90%;
+padding: 2rem;
+}
+
+.formCon input{
+border-radius: 0;
+}
+
+.center{
+margin: 0 auto;
+}
+
+.inWide{
+margin-top: 1rem;
+width: 100%;
+display: flex;
+align-items: center;
+justify-content: space-between;
+}
+
+.cntWide{
+  margin-top: 1rem;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/*for search bar*/
+#custom-search-input{
+  padding: 3px;
+  border: solid 1px #E4E4E4;
+  border-radius: 6px;
+  background-color: #fff;
+}
+
+#custom-search-input input{
+  border: 0;
+  box-shadow: none;
+}
+
+#custom-search-input button{
+  margin: 2px 0 0 0;
+  background: none;
+  box-shadow: none;
+  border: 0;
+  color: #666666;
+  padding: 0 8px 0 10px;
+  border-left: solid 1px #ccc;
+}
+
+#custom-search-input button:hover{
+  border: 0;
+  box-shadow: none;
+  border-left: solid 1px #ccc;
+}
+
+#custom-search-input .glyphicon-search{
+  font-size: 23px;
+}
+/*end*/
