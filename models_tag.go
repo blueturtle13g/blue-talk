@@ -1,4 +1,4 @@
-package additions
+package main
 
 import (
 	"fmt"
@@ -46,38 +46,20 @@ func getTagById(TagId int) (tag Tag) {
 	return tag
 }
 
-func searchTags(word string) (tags []Tag) {
-	word = "%" + word + "%"
-
-	rows, err := DB.Query("SELECT * FROM tags WHERE name LIKE $1", word)
+func getPostTags(postId int) (ItsTags []Tag) {
+	rows, err := DB.Query("SELECT tagId FROM tagRel where postId = $1", postId)
 	if err != nil {
 		fmt.Println(err)
 	}
-	var tag Tag
 	for rows.Next() {
-		rows.Scan(&tag.Id, &tag.Name, &tag.CreatedOn)
-		tags = append(tags, tag)
-	}
-
-	return tags
-}
-
-func getPostsTags(postId int) (ItsTags []Tag) {
-	rows, err := DB.Query("SELECT * FROM tagRel where postId = $1", postId)
-	if err != nil {
-		fmt.Println(err)
-	}
-	var tagRel TagRelations
-	var ItsTagRels []TagRelations
-	for rows.Next() {
-		err = rows.Scan(&tagRel.TagId, &tagRel.PostId)
+		var tagId int
+		err = rows.Scan(&tagId)
 		if err != nil {
 			fmt.Println(err)
 		}
-		ItsTagRels = append(ItsTagRels, tagRel)
-	}
-	for _, v := range ItsTagRels {
-		rows, err := DB.Query("SELECT * FROM tags where id = $1", v.TagId)
+
+		// after we get a tagId, simultaneously we get the associated tag.
+		rows, err := DB.Query("SELECT * FROM tags where id = $1", tagId)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -87,6 +69,7 @@ func getPostsTags(postId int) (ItsTags []Tag) {
 			if err != nil {
 				fmt.Println(err)
 			}
+			// and append it to the main variable
 			ItsTags = append(ItsTags, tag)
 		}
 	}

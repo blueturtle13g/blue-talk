@@ -17,10 +17,10 @@ func (user User) Validate(pwd, confirm string) (warnings []string) {
 		warnings = append(warnings, er)
 	}
 	switch {
-	case len(user.Name) < 3:
-		warnings = append(warnings, "Username cannot be less than 3.")
-	case len(user.Name) > 20:
-		warnings = append(warnings, "Username cannot be more than 20 characters.")
+	case len(user.Name) < 3 || len(user.FirstName) < 3 || len(user.LastName) < 3:
+		warnings = append(warnings, "Names cannot be less than 3 Characters.")
+	case len(user.Name) > 20 || len(user.FirstName) > 20 || len(user.LastName) > 20:
+		warnings = append(warnings, "Names cannot be more than 20 characters.")
 	case strings.Contains(user.Name, " "):
 		warnings = append(warnings, "Username cannot have space between.")
 	case len(pwd) < 8:
@@ -103,9 +103,12 @@ func mailValidation(email string) (er string) {
 
 func nameValidation(name string) (er string) {
 	if valid, err := regexp.MatchString("^[a-zA-Z0]+([_ -]?[a-zA-Z0-9])*$", name); !valid {
-		return "Please Insert A Valid Username Consist of English Letters."
+		return "invalid"
 	} else if err != nil {
 		fmt.Println(err)
+	}
+	if strings.Contains(name, " ") {
+		return "invalid"
 	}
 	return ""
 }

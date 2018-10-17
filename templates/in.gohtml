@@ -15,14 +15,19 @@
       <div class="cntWide">
           <h4>Log In</h4>
       </div>
-    <label for="uORe">User Name | Email</label>
-    <input name="uORe" id="uORe" class="form-control" type="text" required>
-    <label for="password">Password</label>
-    <input name="password" id="password" class="form-control" type="password" required>
-    <div class="inWide">
-      <input type="submit" class="btn btn-success" value="Log In">
-      <br><a href="/register">Or Register</a>
-    </div>
+      <label for="uORe">User Name | Email</label>
+      <input name="uORe" id="uORe" class="form-control" type="text" {{if .UORE }} value="{{.UORE}}" {{end}} required>
+
+      <label for="password">Password</label>
+      <input name="password" id="password" class="form-control passes" type="password" required>
+
+      <label for="shP" class="cols-sm-2 control-label">Show Password</label>
+      <input id="shP" type="checkbox">
+
+      <div class="inWide">
+          <input type="submit" class="btn btn-success" value="Log In">
+          <br><a href="/register">Or Register</a>
+      </div>
   </form>
 </div>
 {{ template "footer.gohtml"}}

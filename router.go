@@ -36,7 +36,7 @@ func Routes() {
 	router.GET("/about", AboutHandler)
 	//router.GET("/tag:id", TagHandler)
 	//router.GET("/user/:id", UserHandler)
-	//router.GET("/profile/:id", ProfileHandler)
+	router.GET("/profile/:id", ProfileHandler)
 
 	router.GET("/", IndexHandler)
 	//router.POST("/", IndexProcess)
@@ -53,7 +53,7 @@ func Routes() {
 	router.GET("/in", LogInHandler)
 	router.POST("/in", LogInProcess)
 	//
-	//router.GET("/profile/:id/edit", EditProfileHandler)
+	router.GET("/profile/:id/edit", EditProfileHandler)
 	//router.POST("/profile/:id/edit", EditProfileProcess)
 	//
 	//router.GET("/makePost", MakePostHandler)

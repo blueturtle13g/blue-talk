@@ -1,6 +1,70 @@
 
     jQuery(document).ready(function($){
 
+
+        uploadImage();
+
+        function uploadImage() {
+            var button = $('.images .pic');
+            var uploader = $("#picsInput");
+            var images = $('.images');
+
+            button.on('click', function () {
+                uploader.click()
+            });
+
+            uploader.on('change', function () {
+                var reader = new FileReader();
+                reader.onload = function(event) {
+                    images.prepend('<div class="img" style="background-image: url(\'' + event.target.result + '\');" rel="'+ event.target.result  +'"><span>remove</span></div>')
+                };
+                reader.readAsDataURL(uploader[0].files[0])
+
+            });
+
+            images.on('click', '.img', function () {
+                $(this).remove()
+            })
+
+        }
+
+        $("#shP").click(function() {
+            let passes = $(".passes");
+            if (passes.attr('type') === "password") {
+                passes.attr('type', 'text');
+            } else {
+                passes.attr('type', 'password');
+            }
+        });
+
+        // proFields
+        $(".proFields").click(function () {
+            $(".proFields").removeClass("proFieldsActive");
+            $(this).addClass("proFieldsActive");
+        });
+
+        // for file uploading
+        var readURL = function(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+
+                reader.onload = function (e) {
+                    $('.avatar').attr('src', e.target.result);
+                };
+
+                reader.readAsDataURL(input.files[0]);
+            }
+        };
+
+        $(".upload").on('change', function(){
+            $(this).css("margin-left", "-1.5rem");
+            readURL(this);
+        });
+
+        $("#trigger-upload").click(function(){
+            $(".upload").click();
+        });
+
         // for alerts
         function errAlert(msg) {
             let errBox = $("#errBox");
@@ -281,13 +345,11 @@
             $('#submitWarn').hide();
             if (username === "") {
                 $('#usernameWarn').hide();
-                $("#usernameIcon").css("backgroundColor","whitesmoke");
                 return;
             }else if (username.length < 3){
                 $('#usernameWarn').show();
                 $("#usernameWarn").addClass("inputErr").removeClass("inputOk");
                 $('#usernameWarn').html("<strong>At Least 3 Characters</strong>");
-                $("#usernameIcon").css("backgroundColor","#fd4d48d6");
                 return;
             }
             $.ajax({
@@ -295,23 +357,20 @@
                 type: 'post',
                 dataType: 'html',
                 data : { submit: "CheckName",
-                    writerId: $("#username").data("writerid"),
+                    writerId: $("#username").data("userrid"),
                     username: $("#username").val(),
                 },
                 success : function(data) {
                     if (data === "Invalid"){
                         $("#usernameWarn").addClass("inputErr").removeClass('inputOk');
-                        $("#usernameIcon").css("backgroundColor", "#fd4d48d6");
-                        $("#usernameWarn").html("<strong title='It cannot start with numbers and should be in english.'>Invalid Name</strong>");
+                        $("#usernameWarn").html("<strong title='It cannot have space between and start with numbers, it also should be in english.'>Invalid Name</strong>");
                         $("#usernameWarn").show();
                     }else if (data === "Taken") {
                         $("#usernameWarn").addClass("inputErr").removeClass('inputOk');
-                        $("#usernameIcon").css("backgroundColor", "#fd4d48d6");
                         $("#usernameWarn").html("<strong title='some user has already chosen this name, so it is not available to you.'>Already Taken</strong>");
                         $("#usernameWarn").show();
                     } else if (data === "Available") {
                         $("#usernameWarn").addClass("inputOk").removeClass("inputErr");
-                        $("#usernameIcon").css("backgroundColor", "rgba(64, 139, 83, 0.84)");
                         $("#usernameWarn").html("<strong title='No user has chosen this name, so it is available to you.'>Available</strong>");
                         $("#usernameWarn").show();
                     } else {
@@ -320,18 +379,16 @@
                 }
             });
         });
+
         $('#email').on('blur', function(){
             $('#submitWarn').hide();
             var email = $("#email").val();
             if (email === ""){
                 $('#emailWarn').hide();
-                $("#emailIcon").css("backgroundColor", "whitesmoke");
             }else if (validateEmail(email)) {
                 $('#emailWarn').hide();
-                $("#emailIcon").css("backgroundColor", "rgba(64, 139, 83, 0.84)");
             }else{
                 $('#emailWarn').show();
-                $("#emailIcon").css("backgroundColor","#fd4d48d6");
             }
         });
         $('#password').on('blur', function(){
@@ -339,13 +396,10 @@
             let password = $('#password').val();
             if (password === ""){
                 $('#passWarn').hide();
-                $("#passIcon").css("backgroundColor","whitesmoke");
             }else if (password.length < 8) {
                 $('#passWarn').show();
-                $("#passIcon").css("backgroundColor","#fd4d48d6");
             }else{
                 $('#passWarn').hide();
-                $("#passIcon").css("backgroundColor", "rgba(64, 139, 83, 0.84)");
             }
         });
         function validateEmail(email) {
@@ -358,13 +412,10 @@
             let confirm = $('#confirm').val();
             if (confirm === "") {
                 $('#confWarn').hide();
-                $("#confIcon").css("backgroundColor", "whitesmoke");
             }else if (confirm !== password){
                 $('#confWarn').show();
-                $("#confIcon").css("backgroundColor","#fd4d48d6");
             }else{
                 $('#confWarn').hide();
-                $("#confIcon").css("backgroundColor", "rgba(64, 139, 83, 0.84)");
             }
         });
         // end of validation form

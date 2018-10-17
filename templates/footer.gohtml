@@ -1,18 +1,36 @@
-<div id="confirmBox" class="alertBox" >
+<div id="confirmBox" class="alertBox unvis" >
     <div class ="message" ></div>
     <button class ="yes" >Yes</button>
     <button class ="no" >No</button>
 </div>
-<div id="textBox" class="alertBox" >
+<div id="textBox" class="alertBox unvis" >
     <div class ="message"></div>
     <textarea class="rounded" cols="30" rows="10"></textarea>
     <button class ="send no" >Send</button>
     <button class ="cancel yes" >Cancel</button>
 </div>
-<div id="errBox" class="alertBox" >
+<div id="errBox" class="alertBox unvis" >
     <div class ="message" ></div>
     <button class ="no" >OK</button>
 </div>
+
+<script>
+    jQuery(document).ready(function($){
+        {{range .Posts }}
+            var id = {{.Id}};
+            for (var i = 0; i < {{len .Pics}}; i++) {
+                if (i === 0) {
+                    $("#picRanger" +{{.Id}}).append(`<li data-target='unique${id}' data-slide-to='0' class='active'></li>`);
+                } else {
+                    $("#picRanger" +{{.Id}}).append(`<li data-target='unique${id}' data-slide-to='${i}'></li>`);
+                }
+            }
+        {{end}}
+    });
+
+</script>
+
 <script src="/static/js/main.js"></script>
+<script src="/static/js/blur.js"></script>
 </body>
 </html>

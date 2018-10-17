@@ -1,11 +1,5 @@
 {{ template "header.gohtml" .}}
 
-<div class="wide">
-    <div id="submitWarn" class="col-12 warns">
-        <label class="inputErr cols-sm-2 control-label"><strong>Please Fix Errors And Try Again</strong></label>
-    </div>
-</div>
-
 <div class="formCon">
     <div class="wide">
           {{ if .Errs }}
@@ -17,6 +11,9 @@
               {{ end }}
               </div>
           {{ end }}
+          <div id="submitWarn" class="col-12 warns unvis">
+              <label class="inputErr cols-sm-2 control-label"><strong>Please Fix Errors And Try Again</strong></label>
+          </div>
     </div>
   <form class="regForm center" method="post">
       <div class="cntWide">
@@ -24,31 +21,42 @@
       </div>
     <div class="row">
       <div class="col-md-6 col-sm-6">
-        <label for="fname">First Name</label>
-        <input name="fname" id="fname" class="form-control" type="text" required>
+        <label for="firstName">First Name</label>
+        <input name="firstName" id="firstName" class="form-control" {{ if .FirstName }} value="{{.FirstName}}"{{end}} type="text" required>
       </div>
       <div class="col-md-6 col-sm-6">
-        <label for="lname">Last Name</label>
-        <input name="lname" id="lname" class="form-control" type="text" required>
+        <label for="lastName">Last Name</label>
+        <input name="lastName" id="lastName" class="form-control" {{ if .LastName }} value="{{.LastName}}"{{end}} type="text" required>
       </div>
       <div class="col-md-6 col-sm-6">
         <label for="username">User Name</label>
-        <input name="username" id="username" class="form-control" type="text" required>
+        <input name="username" id="username" class="form-control" {{ if .Username }} value="{{.Username}}"{{end}}  type="text" required>
+          <div class="unvis" id="usernameWarn"></div>
       </div>
       <div class="col-md-6 col-sm-6">
         <label for="email">Email</label>
-        <input name="email" id="email" class="form-control" type="email" required>
+        <input name="email" id="email" class="form-control" {{ if .Email }} value="{{.Email}}"{{end}} type="email" required>
+        <div id="emailWarn" class="unvis inputErr">Invalid Email</div>
       </div>
+
       <div class="col-md-6 col-sm-6">
         <label for="password">Password</label>
-        <input name="password" id="password" class="form-control" type="password" required>
+        <input name="password" id="password" class="form-control passes" type="password" required>
+          <div id="passWarn" class="unvis inputErr">At Least 8 Characters</div>
       </div>
+
       <div class="col-md-6 col-sm-6">
         <label for="confirm">Confirm Password</label>
-        <input name="confirm" id="password" class="form-control" type="password" required>
+        <input name="confirm" id="confirm" class="form-control passes" type="password" required>
+          <div id="confWarn" class="unvis inputErr">Doesn't Match</div>
       </div>
+
     </div>
-    <div class="inWide">
+
+    <label for="shP" class="cols-sm-2 control-label">Show Password</label>
+    <input id="shP" type="checkbox">
+
+      <div class="inWide">
       <input type="submit" class="btn btn-success" value="Register">
       <br><a href="/in">Or Log In</a>
     </div>

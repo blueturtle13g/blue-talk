@@ -6,10 +6,9 @@ import (
 )
 
 type User struct {
-	Id                                                  int
-	IsActive, Private											 bool
-	Name, FirstName, LastName, Email, Password, Quote, LastLog, CreatedOn, DeactivatedOn string
-	Pics []string
+	Id                                                  											 int
+	IsActive, Private											 									 bool
+	Name, FirstName, LastName, Email, Phone, Password, Pic, Quote, LastLog, CreatedOn, DeactivatedOn string
 }
 
 func searchUsers(word string) (users []User) {
@@ -22,20 +21,52 @@ func searchUsers(word string) (users []User) {
 	}
 	var user User
 	for rows.Next() {
-		rows.Scan(&user.Id, &user.Name, &user.FirstName, &user.LastName, &user.Email, &user.Password, &user.Quote, &user.IsActive, &user.Private, &user.LastLog, &user.CreatedOn, &user.DeactivatedOn)
+		rows.Scan(&user.Id, &user.Name, &user.FirstName, &user.LastName, &user.Email, &user.Phone, &user.Password, &user.Pic, &user.Quote, &user.IsActive, &user.Private, &user.LastLog, &user.CreatedOn, &user.DeactivatedOn)
 		users = append(users, user)
 	}
 	return users
 }
 
-func getUserByName(Name string) (user User) {
+func searchTags(word string) (posts []Post) {
+	word = "%" + word + "%"
 
+	rows, err := DB.Query("SELECT id FROM tags WHERE name LIKE $1", word)
+	if err != nil {
+		fmt.Println(err)
+
+	}
+	var ids []int
+	for rows.Next() {
+		var id int
+		rows.Scan(&id)
+		ids = append(ids, id)
+	}
+
+	for _, id := range ids{
+		rows, err = DB.Query("SELECT * FROM posts WHERE id = $1", id)
+		if err != nil {
+			fmt.Println(err)
+
+		}
+		var post Post
+		for rows.Next() {
+			rows.Scan(&post.Id, &post.Text, &post.By, &post.ViewCount, &post.Like, &post.CreatedOn, &post.UpdatedOn, &post.DeletedOn)
+			pics := getPostPics(post.Id)
+			post.Pics = pics
+			posts = append(posts, post)
+		}
+	}
+
+	return posts
+}
+
+func getUserByName(Name string) (user User) {
 	rows, err := DB.Query("select * from users where name = $1", Name)
 	if err != nil {
 		fmt.Println(err)
 	}
 	for rows.Next() {
-		rows.Scan(&user.Id, &user.Name, &user.FirstName, &user.LastName, &user.Email, &user.Password, &user.Quote, &user.IsActive, &user.Private, &user.LastLog, &user.CreatedOn, &user.DeactivatedOn)
+		rows.Scan(&user.Id, &user.Name, &user.FirstName, &user.LastName, &user.Email, &user.Phone, &user.Password, &user.Pic, &user.Quote, &user.IsActive, &user.Private, &user.LastLog, &user.CreatedOn, &user.DeactivatedOn)
 	}
 	return user
 }
@@ -48,7 +79,7 @@ func getUsersByIds(ids []int) (users []User) {
 			fmt.Println(err)
 		}
 		for rows.Next() {
-			rows.Scan(&user.Id, &user.Name, &user.FirstName, &user.LastName, &user.Email, &user.Password, &user.Quote, &user.IsActive, &user.Private, &user.LastLog, &user.CreatedOn, &user.DeactivatedOn)
+			rows.Scan(&user.Id, &user.Name, &user.FirstName, &user.LastName, &user.Email, &user.Phone, &user.Password, &user.Pic, &user.Quote, &user.IsActive, &user.Private, &user.LastLog, &user.CreatedOn, &user.DeactivatedOn)
 		}
 		users = append(users, user)
 	}
@@ -58,7 +89,7 @@ func getUsersByIds(ids []int) (users []User) {
 func insertUser(user User) (ItsId int) {
 	err := DB.QueryRow(
 		"INSERT INTO users(name,firstName,lastName,email,password,createdOn) VALUES($1,$2,$3,$4,$5,$6) returning id;",
-		user.Name, user.FirstName, user.LastLog, user.Email, user.Password, getNow()).Scan(&ItsId)
+		user.Name, user.FirstName, user.LastName, user.Email, user.Password, getNow()).Scan(&ItsId)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -72,7 +103,7 @@ func getAllUsers(order string) (users []User) {
 	}
 	var user User
 	for rows.Next() {
-		rows.Scan(&user.Id, &user.Name, &user.FirstName, &user.LastName, &user.Email, &user.Password, &user.Quote, &user.IsActive, &user.Private, &user.LastLog, &user.CreatedOn, &user.DeactivatedOn)
+		rows.Scan(&user.Id, &user.Name, &user.FirstName, &user.LastName, &user.Email, &user.Phone, &user.Password, &user.Pic, &user.Quote, &user.IsActive, &user.Private, &user.LastLog, &user.CreatedOn, &user.DeactivatedOn)
 		users = append(users, user)
 	}
 	return users
@@ -84,40 +115,6 @@ func deactiveUserById(UserId int) int64 {
 		fmt.Println(err)
 	}
 	res, err := stmt.Exec("", getNow(), UserId)
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	affect, err := res.RowsAffected()
-	if err != nil {
-		fmt.Println(err)
-	}
-	return affect
-}
-
-func deletePostPic(storyId int) int64{
-	stmt, err := DB.Prepare("delete from postPicRel where postId= $1")
-	if err != nil {
-		fmt.Println(err)
-	}
-	res, err := stmt.Exec(storyId)
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	affect, err := res.RowsAffected()
-	if err != nil {
-		fmt.Println(err)
-	}
-	return affect
-}
-
-func deleteUserPic(UserId int) int64 {
-	stmt, err := DB.Prepare("delete from userPicRel where userId= $1")
-	if err != nil {
-		fmt.Println(err)
-	}
-	res, err := stmt.Exec(UserId)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -147,6 +144,24 @@ func updateLastLog(userId int) int64 {
 	return affect
 }
 
+func deleteUserPic(userId int) int64 {
+	stmt, err := DB.Prepare("update users set pic= $1 where id= $2")
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	res, err := stmt.Exec("", userId)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	affect, err := res.RowsAffected()
+	if err != nil {
+		fmt.Println(err)
+	}
+	return affect
+}
+
 func updatePass(UserId int, password string) int64 {
 	stmt, err := DB.Prepare("update users set password= $1 where id= $2")
 	if err != nil {
@@ -164,7 +179,7 @@ func updatePass(UserId int, password string) int64 {
 	}
 	return affect
 }
-//
+
 //func updateUser(upUser User) int64 {
 //	// we should have previous information of the user before updating
 //	// to be able to find its dependent tables and update them with new one,
@@ -202,7 +217,7 @@ func updatePass(UserId int, password string) int64 {
 //		}
 //	}
 //
-//	coms := getUsersComs(notUpUser.Name)
+//	coms := getUserComs(notUpUser.Name)
 //	for i, notUpUser := range coms {
 //		stmt, err = DB.Prepare("update coms set by= $1 where id= $2")
 //		if err != nil {
@@ -223,6 +238,20 @@ func updatePass(UserId int, password string) int64 {
 //	return UserAffect
 //}
 
+
+func getUserPosts(username string) (posts []Post) {
+	rows, err := DB.Query("select * from posts where by = $1", username)
+	if err != nil {
+		fmt.Println(err)
+	}
+	var post Post
+	for rows.Next() {
+		rows.Scan(&post.Id, &post.Text, &post.By, &post.ViewCount, &post.Like, &post.CreatedOn, &post.UpdatedOn, &post.DeletedOn)
+		posts = append(posts, post)
+	}
+	return posts
+}
+
 func getUserById(UserId int) (user User) {
 	rows, err := DB.Query(
 		"SELECT * FROM users where id = $1", UserId)
@@ -230,7 +259,7 @@ func getUserById(UserId int) (user User) {
 		fmt.Println(err)
 	}
 	for rows.Next() {
-		rows.Scan(&user.Id, &user.Name, &user.FirstName, &user.LastName, &user.Email, &user.Password, &user.Quote, &user.IsActive, &user.Private, &user.LastLog, &user.CreatedOn, &user.DeactivatedOn)
+		rows.Scan(&user.Id, &user.Name, &user.FirstName, &user.LastName, &user.Email, &user.Phone, &user.Password, &user.Pic, &user.Quote, &user.IsActive, &user.Private, &user.LastLog, &user.CreatedOn, &user.DeactivatedOn)
 	}
 	return user
 }

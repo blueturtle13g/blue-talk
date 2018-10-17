@@ -1,4 +1,4 @@
-package additions
+package main
 
 import (
 	"fmt"
@@ -10,6 +10,7 @@ type Post struct {
 	Id, ViewCount , Like                            int
 	Text, By, CreatedOn, UpdatedOn, DeletedOn       string
 	Pics []string
+	Tags []Tag
 }
 
 
@@ -60,6 +61,8 @@ func getPostsByIds(ids []int) (posts []Post) {
 		for rows.Next() {
 			rows.Scan(&post.Id, &post.Text, &post.By, &post.ViewCount, &post.Like, &post.CreatedOn, &post.UpdatedOn, &post.DeletedOn)
 		}
+		post.Pics = getPostPics(post.Id)
+		post.Tags = getPostTags(post.Id)
 		posts = append(posts, post)
 	}
 	return posts
@@ -68,8 +71,8 @@ func getPostsByIds(ids []int) (posts []Post) {
 func getAllPosts(order string) (posts []Post) {
 	var rows *sql.Rows
 	var err error
-	if order == "rate" {
-		rows, err = DB.Query("select * from posts order by Like desc")
+	if order == "like" {
+		rows, err = DB.Query("select * from posts order by Liked desc")
 	}else{
 		rows, err = DB.Query("select * from posts order by id desc")
 	
@@ -80,26 +83,42 @@ func getAllPosts(order string) (posts []Post) {
 	var post Post
 	for rows.Next() {
 		rows.Scan(&post.Id, &post.Text, &post.By, &post.ViewCount, &post.Like, &post.CreatedOn, &post.UpdatedOn, &post.DeletedOn)
+		post.Pics = getPostPics(post.Id)
+		post.Tags = getPostTags(post.Id)
 		posts = append(posts, post)
 	}
 	return posts
 }
 
-func getPostById(postId int) (post Post, ItsComments []Com, ItsTags []Tag, ItsPics []Pic) {
-	rows, err := DB.Query("SELECT * FROM posts where id = $1", postId)
+
+func getPostPics(postId int) (pics []string) {
+	rows, err := DB.Query("select pic from picrel where id = $1", postId)
 	if err != nil {
 		fmt.Println(err)
-		return
 	}
 	for rows.Next() {
-		rows.Scan(&post.Id, &post.Text, &post.By, &post., &post.ViewCount, &post.Like, &post.CreatedOn, &post.UpdatedOn, &post.DeletedOn)
+		var pic string
+		rows.Scan(&pic)
+		pics = append(pics, pic)
 	}
-	
-	ItsPics = getPostsComments(postId)
-	ItsComments = getPostsPics(postId)
-	ItsTags = getPostsTags(postId)
-	return post, ItsComments, ItsTags, ItsPics
+	return pics
 }
+
+//func getPostById(postId int) (post Post, ItsComments []Com, ItsTags []Tag, ItsPics []Pic) {
+//	rows, err := DB.Query("SELECT * FROM posts where id = $1", postId)
+//	if err != nil {
+//		fmt.Println(err)
+//		return
+//	}
+//	for rows.Next() {
+//		rows.Scan(&post.Id, &post.Text, &post.By, &post., &post.ViewCount, &post.Like, &post.CreatedOn, &post.UpdatedOn, &post.DeletedOn)
+//	}
+//
+//	ItsPics = getPostsComments(postId)
+//	ItsComments = getPostsPics(postId)
+//	ItsTags = getPostsTags(postId)
+//	return post, ItsComments, ItsTags, ItsPics
+//}
 
 func insertPost(post Post) (ItsId int) {
 	err := DB.QueryRow(
@@ -110,4 +129,22 @@ func insertPost(post Post) (ItsId int) {
 	}
 
 	return ItsId
+}
+
+
+func deletePostPic(storyId int) int64{
+	stmt, err := DB.Prepare("delete from postPicRel where postId= $1")
+	if err != nil {
+		fmt.Println(err)
+	}
+	res, err := stmt.Exec(storyId)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	affect, err := res.RowsAffected()
+	if err != nil {
+		fmt.Println(err)
+	}
+	return affect
 }
