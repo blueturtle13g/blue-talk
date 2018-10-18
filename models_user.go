@@ -180,63 +180,82 @@ func updatePass(UserId int, password string) int64 {
 	return affect
 }
 
-//func updateUser(upUser User) int64 {
-//	// we should have previous information of the user before updating
-//	// to be able to find its dependent tables and update them with new one,
-//	// e.g. if we use upUser.Name to find its coms, it'll return nothing.
-//	// because there is no comment record with updated name
-//	notUpUser := getUserById(upUser.Id)
-//	stmt, err := DB.Prepare("update users set name= $1, firstName= $2, lastName= $3 email= $4, quote= $5, private= $6 where id= $7")
-//	if err != nil {
-//		fmt.Println(err)
-//	}
-//	res, err := stmt.Exec(upUser.Name, upUser.FirstName, upUser.LastName, upUser.Email, upUser.Quote, upUser.Private, upUser.Id)
-//	if err != nil {
-//		fmt.Println(err)
-//	}
-//	UserAffect, err := res.RowsAffected()
-//	if err != nil {
-//		fmt.Println(err)
-//	}
-//	posts := getUserPosts(notUpUser.Id)
-//	for i, v := range posts {
-//		stmt, err = DB.Prepare("update posts set by= $1 where id= $2")
-//		if err != nil {
-//			fmt.Println(err)
-//		}
-//		res, err = stmt.Exec(upUser.Name, v.Id)
-//		if err != nil {
-//			fmt.Println(err)
-//		}
-//		PostAffect, err := res.RowsAffected()
-//		if err != nil {
-//			fmt.Println(err)
-//		}
-//		if PostAffect < 1 {
-//			fmt.Println("PostAffect less than one at ", i)
-//		}
-//	}
-//
-//	coms := getUserComs(notUpUser.Name)
-//	for i, notUpUser := range coms {
-//		stmt, err = DB.Prepare("update coms set by= $1 where id= $2")
-//		if err != nil {
-//			fmt.Println(err)
-//		}
-//		res, err = stmt.Exec(upUser.Name, notUpUser.Id)
-//		if err != nil {
-//			fmt.Println(err)
-//		}
-//		PostAffect, err := res.RowsAffected()
-//		if err != nil {
-//			fmt.Println(err)
-//		}
-//		if PostAffect < 1 {
-//			fmt.Println("ComAffect less than one at ", i)
-//		}
-//	}
-//	return UserAffect
-//}
+func updateUser(upUser User) int64 {
+	// we should have previous information of the user before updating
+	// to be able to find its dependent tables and update them with new one,
+	// e.g. if we use upUser.Name to find its coms, it'll return nothing.
+	// because there is no comment record with updated name
+	notUpUser := getUserById(upUser.Id)
+	stmt, err := DB.Prepare("update users set name= $1, firstName= $2, lastName= $3, email= $4, phone= $5, quote= $6, private= $7 where id= $8")
+	if err != nil {
+		fmt.Println(err)
+	}
+	res, err := stmt.Exec(upUser.Name, upUser.FirstName, upUser.LastName, upUser.Email , upUser.Phone, upUser.Quote, upUser.Private, upUser.Id)
+	if err != nil {
+		fmt.Println(err)
+	}
+	UserAffect, err := res.RowsAffected()
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	posts := getUserPosts(notUpUser.Name)
+	for i, post := range posts {
+		stmt, err = DB.Prepare("update posts set by= $1 where id= $2")
+		if err != nil {
+			fmt.Println(err)
+		}
+		res, err = stmt.Exec(upUser.Name, post.Id)
+		if err != nil {
+			fmt.Println(err)
+		}
+		PostAffect, err := res.RowsAffected()
+		if err != nil {
+			fmt.Println(err)
+		}
+		if PostAffect < 1 {
+			fmt.Println("PostAffect less than one at ", i)
+		}
+	}
+
+	coms := getUserComs(notUpUser.Name)
+	for i, notUpUser := range coms {
+		stmt, err = DB.Prepare("update coms set by= $1 where id= $2")
+		if err != nil {
+			fmt.Println(err)
+		}
+		res, err = stmt.Exec(upUser.Name, notUpUser.Id)
+		if err != nil {
+			fmt.Println(err)
+		}
+		PostAffect, err := res.RowsAffected()
+		if err != nil {
+			fmt.Println(err)
+		}
+		if PostAffect < 1 {
+			fmt.Println("ComAffect less than one at ", i)
+		}
+	}
+	return UserAffect
+}
+
+func updateProPic(pic string, userId int) int64{
+	stmt, err := DB.Prepare("update users set pic= $1 where id= $2")
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	res, err := stmt.Exec(pic, userId)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	affect, err := res.RowsAffected()
+	if err != nil {
+		fmt.Println(err)
+	}
+	return affect
+}
 
 
 func getUserPosts(username string) (posts []Post) {

@@ -1,4 +1,4 @@
-package additions
+package main
 
 import (
 	"fmt"
@@ -10,8 +10,8 @@ type Com struct {
 	Text, By, CreatedOn, UpdatedOn, DeletedOn string
 }
 
-func getWritersComs(WriterName string) (coms []Com) {
-	rows, err := DB.Query("select * from coms where by= $1", WriterName)
+func getUserComs(username string) (coms []Com) {
+	rows, err := DB.Query("select * from coms where by= $1", username)
 	if err != nil {
 		fmt.Println(err)
 	}

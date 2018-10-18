@@ -38,7 +38,13 @@ a {text-decoration: none;}
   background: rgba(64, 139, 83, 0.84)!important;
 }
 
+.proInfo{
+  height: 600px!important;
+  border: 1px solid red!important;
+}
+
 .alert{
+  text-align: center;
   padding: .3rem!important;
   margin-bottom: 1rem!important;
 }
@@ -90,6 +96,10 @@ body{
 
 .margTop{
   margin-top: 5rem;
+}
+
+.margButEx{
+  margin-top: -5rem;
 }
 
 .margTopEx{
@@ -287,13 +297,13 @@ justify-content: space-between;
   flex-wrap:  wrap;
   margin-top: 20px;
 }
-.images .img,
+.images .postImgHelper,
 .images .pic {
   flex-basis: 31%;
   margin-bottom: 10px;
   border-radius: 4px;
 }
-.images .img {
+.images .postImgHelper {
   width: 112px;
   height: 200px;
   background-size: cover;
@@ -306,15 +316,15 @@ justify-content: space-between;
   position: relative;
   overflow: hidden;
 }
-.images .img:nth-child(3n) {
+.images .postImgHelper:nth-child(3n) {
   margin-right: 0;
 }
-.images .img span {
+.images .postImgHelper span {
   display: none;
   text-transform: capitalize;
   z-index: 2;
 }
-.images .img::after {
+.images .postImgHelper::after {
   content: '';
   width: 100%;
   height: 100%;
@@ -323,12 +333,12 @@ justify-content: space-between;
   opacity: 0;
   position: absolute;
 }
-.images .img:hover::after {
+.images .postImgHelper:hover::after {
   display: block;
   background-color: #000;
   opacity: .5;
 }
-.images .img:hover span {
+.images .postImgHelper:hover span {
   display: block;
   color: #fff;
 }
@@ -344,7 +354,7 @@ justify-content: space-between;
 }
 
 @media screen and (max-width: 400px) {
-  .images .img,
+  .images .postImgHelper,
   .images .pic {
     flex-basis: 100%;
     margin-right: 0;
@@ -352,3 +362,70 @@ justify-content: space-between;
 }
 
 /*end*/
+
+/*for alerts*/
+.alertBox {
+  z-index: 10;
+  display: none;
+  color: white;
+  top: 20%;
+  background-color: #1d2322f5;
+  position: fixed;
+  width: 300px;
+  left: 50%;
+  margin-left: -100px;
+  padding: 6px 8px 8px;
+  box-sizing: border-box;
+  text-align: center;
+  border-radius: 10px;
+}
+.alertBox button {
+  color: white;
+  display: inline-block;
+  border-radius: 5px;
+  border: 1px solid #aaa;
+  padding: 5px;
+  text-align: center;
+  width: 80px;
+  cursor: pointer;
+}
+.alertBox .yes {
+  background-color: #bd0606;
+}
+.alertBox .no {
+  background-color: #2b4f8e;
+}
+.alertBox .message {
+  padding: 1rem;
+  margin-bottom: 2rem;
+  text-align: center;
+  background: #273a3a;
+  border-radius: 5px;
+}
+
+#congBox{
+  background-color: #47b15df5;
+}
+
+#congBox div, button{
+  background: #255233;
+  padding: 1rem;
+  margin-bottom: 2rem;
+  text-align: center;
+  border-radius: 5px;
+}
+
+#congBox button{
+  height: 2rem;
+  color: whitesmoke;
+}
+/*end of alerts*/
+
+#upPP{
+  margin-top: 5px;
+}
+
+#chPL{
+  margin-left: 1.4rem;
+  cursor: pointer;
+}

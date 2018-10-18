@@ -14,8 +14,37 @@
     <button class ="no" >OK</button>
 </div>
 
+<div id="congBox" class="alertBox unvis" >
+    <div></div>
+    <button class ="fa fa-thumbs-up fa-lg" ></button>
+</div>
+
 <script>
     jQuery(document).ready(function($){
+
+        init()
+        function init() {
+
+            // I made this func in order to be able to send the user
+            // in the field I want
+            var proFields = {{ if .ProField }} {{.ProField}} {{else}} "" {{end}};
+            switch(proFields) {
+                case "posts":
+                    $("#postsField").click();
+                    break;
+                case "messages":
+                    $("#messagesField").click();
+                    break;
+                case "followings":
+                    $("#followingsField").click();
+                    break;
+                case "followersField":
+                    $("#followersField").click();
+                    break;
+                default:
+                    $("#detailsField").click();
+            }
+
         {{range .Posts }}
             var id = {{.Id}};
             for (var i = 0; i < {{len .Pics}}; i++) {
@@ -26,6 +55,8 @@
                 }
             }
         {{end}}
+        }
+
     });
 
 </script>

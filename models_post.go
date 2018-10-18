@@ -92,7 +92,7 @@ func getAllPosts(order string) (posts []Post) {
 
 
 func getPostPics(postId int) (pics []string) {
-	rows, err := DB.Query("select pic from picrel where id = $1", postId)
+	rows, err := DB.Query("select pic from picrel where postId = $1", postId)
 	if err != nil {
 		fmt.Println(err)
 	}

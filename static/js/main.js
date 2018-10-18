@@ -1,28 +1,105 @@
 
     jQuery(document).ready(function($){
 
+        $("#upPro").click(function (e) {
+            // var selectedCountry = $("#private option:selected").val();
+            // alert($("#private option:selected").val());
+            e.preventDefault();
+            $.ajax({
+                url: "/profile/{{.User.Id}}",
+                type: 'post',
+                dataType: 'html',
+                data : { username : $("#username").val(),
+                            firstName : $("#firstName").val(),
+                            lastName : $("#lastName").val(),
+                            phone : $("#phone").val(),
+                            email : $("#email").val(),
+                            quote : $("#quote").val(),
+                            pri : $("#private option:selected").val()
+                },
+                success : function(data) {
+                    if (data !== "done"){
+                        errAlert(data)
+                    }else{
+                        window.location.reload();
+                    }
+                }
+            });
+        });
+
+
+        $("#delPP").click(function (e) {
+            e.preventDefault();
+            console.log("got to delpp")
+            let confirmBox = $("#confirmBox");
+            confirmBox.find(".message").html("<h5> Are you sure?</h5>");
+            confirmBox.find(".yes").unbind().click(function () {
+                $.ajax({
+                    url: "/profile/{{.User.Id}}",
+                    type: 'post',
+                    dataType: 'html',
+                    data : { submit : "DelPP",
+                    },
+                    success : function(data) {
+                        if (data === "done"){
+                            window.location.reload();
+                        } else {
+                            errAlert(data)
+                        }
+                    }
+                });
+            });
+            confirmBox.find(".no").unbind().click(function () {
+                confirmBox.hide();
+            });
+            confirmBox.show("slide", {direction: "up"}, 500);
+        });
+
+        $("#upPass").click(function (e) {
+            e.preventDefault();
+            $.ajax({
+                url: "/profile/{{.User.Id}}",
+                type: 'post',
+                dataType: 'html',
+                data : { submit : "UpPass",
+                        cPass : $("#cPass").val(),
+                        newPass : $("#newPass").val(),
+                        confirmPass : $("#confirmPass").val(),
+                },
+                success : function(data) {
+                    if (data !== "done"){
+                        errAlert(data)
+                    }else{
+                        congAlert("Your Password has been updated successfully.")
+                    }
+                }
+            });
+        });
 
         uploadImage();
-
         function uploadImage() {
             var button = $('.images .pic');
             var uploader = $("#picsInput");
             var images = $('.images');
 
             button.on('click', function () {
-                uploader.click()
+                if ($(".postImgHelper").length >= 6){
+                    errAlert("You can't uer more than 6 pictures in a post.")
+                }else{
+                    uploader.click()
+                }
             });
 
             uploader.on('change', function () {
                 var reader = new FileReader();
                 reader.onload = function(event) {
-                    images.prepend('<div class="img" style="background-image: url(\'' + event.target.result + '\');" rel="'+ event.target.result  +'"><span>remove</span></div>')
+                    images.prepend('<div class="postImgHelper" style="background-image: url(\'' + event.target.result + '\');" rel="'+ event.target.result  +'"><span>remove</span></div>')
                 };
                 reader.readAsDataURL(uploader[0].files[0])
 
             });
 
-            images.on('click', '.img', function () {
+            images.on('click', '.postImgHelper', function () {
                 $(this).remove()
             })
 
@@ -45,6 +122,7 @@
 
         // for file uploading
         var readURL = function(input) {
+            console.log("readUrl");
             if (input.files && input.files[0]) {
                 var reader = new FileReader();
 
@@ -56,16 +134,18 @@
             }
         };
 
-        $(".upload").on('change', function(){
-            $(this).css("margin-left", "-1.5rem");
+        $("#upload").on('change', function(){
             readURL(this);
         });
 
-        $("#trigger-upload").click(function(){
-            $(".upload").click();
+        // for alerts
+
+        $('body').click(function(e) {
+            if (!$(e.target).closest('.alertBox').length){
+                $(".alertBox").hide();
+            }
         });
 
-        // for alerts
         function errAlert(msg) {
             let errBox = $("#errBox");
             errBox.find(".message").html(msg);
@@ -75,6 +155,16 @@
             });
             errBox.show("slide", {direction: "up"}, 500);
         }
+
+        function congAlert(msg) {
+            let congBox = $("#congBox");
+            congBox.find("div").html(msg);
+            congBox.find("button").unbind().click(function () {
+                window.location.reload(true);
+            });
+            congBox.show("slide", {direction: "up"}, 500);
+        }
+
         // for commenting ajaxes
         $("#sendCom").click(function (e) {
             e.preventDefault();
@@ -202,7 +292,7 @@
             confirmBox.find(".message").html("<h5>Are you sure?</h5>");
             confirmBox.find(".yes").unbind().click(function () {
                 $.ajax({
-                    url: "/profile/{{.Writer.Id}}/edit",
+                    url: "/profile/{{.User.Id}}/edit",
                     type: 'post',
                     dataType: 'html',
                     data : { submit : "DeleteImg",
@@ -255,7 +345,7 @@
             confirmBox.find(".message").html("<h5> Are you sure you want to delete your account?</h5><p>It can't be retrieved later</p>");
             confirmBox.find(".yes").unbind().click(function () {
                 $.ajax({
-                    url: "/profile/{{.Writer.Id}}/edit",
+                    url: "/profile/{{.User.Id}}/edit",
                     type: 'post',
                     dataType: 'html',
                     data : { submit : "Delete",

@@ -68,23 +68,23 @@ func tagFinder(body string) (tags []string) {
 	}
 	return tags
 }
-//
-//func processTag(postId int, tags []string) {
-//	for _, v := range tags {
-//		v = strings.TrimSpace(v)
-//		if len(v) == 0 {
-//			continue
-//		}
-//		var tagId int
-//		// we check to figure out if this tag_name already exists with
-//		// getting its tag_id, if tag_id is not bigger than one, so
-//		// there is no such tag_name
-//		if tagId = alreadyTag(v); tagId < 1 {
-//			tagId = insertTag(v)
-//		}
-//		_ = insertTagRel(tagId, postId)
-//	}
-//}
+
+func processTag(postId int, tags []string) {
+	for _, v := range tags {
+		v = strings.TrimSpace(v)
+		if len(v) == 0 {
+			continue
+		}
+		var tagId int
+		// we check to figure out if this tag_name already exists with
+		// getting its tag_id, if tag_id is not bigger than one, so
+		// there is no such tag_name
+		if tagId = alreadyTag(v); tagId < 1 {
+			tagId = insertTag(v)
+		}
+		_ = insertTagRel(tagId, postId)
+	}
+}
 
 func getNow() string {
 	splitTime := strings.Split(time.Now().String(), " ")
@@ -105,7 +105,7 @@ func processPostPic(file multipart.File) (picName string) {
 	}
 	// create sha for file name
 	picName = picSha(file) + ".jpg"
-	path := filepath.Join(wd, "static", "pic", "stories", picName)
+	path := filepath.Join(wd, "static", "pic", "posts", picName)
 	nf, err := os.Create(path)
 	if err != nil {
 		fmt.Println(err)

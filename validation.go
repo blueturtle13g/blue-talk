@@ -32,28 +32,30 @@ func (user User) Validate(pwd, confirm string) (warnings []string) {
 	}
 	return warnings
 }
-func (user User) UpValidate() (warnings []string) {
+func (user User) UpValidate() (warnings string) {
 	if affect := alreadyName(user.Name, user.Id); affect > 0 {
-		warnings = append(warnings, "This username already exists.")
+		warnings += "This username already exists. \n"
 	}
 	if affect := alreadyEmail(user.Email, user.Id); affect > 0 {
-		warnings = append(warnings, "This email already exists.")
+		warnings += "This email already exists. \n"
 	}
 	if er := mailValidation(user.Email); er != "" {
-		warnings = append(warnings, er)
+		warnings +=  er+" \n"
 	}
 	if er := nameValidation(user.Name); er != "" {
-		warnings = append(warnings, er)
+		warnings +=  er+" \n"
 	}
 	switch {
-	case len(user.Name) < 3:
-		warnings = append(warnings, "Username Cannot Be Less Than 3 Characters.")
+	case len(user.Name) < 3 || len(user.FirstName) < 3 || len(user.LastName) < 3:
+		warnings +="Names cannot be less than 3 Characters."
+	case len(user.Phone) < 11 && len(user.Phone) != 0:
+		warnings +="Phone cannot be less than 11 Characters."
+	case len(user.Name) > 20 || len(user.FirstName) > 20 || len(user.LastName) > 20:
+		warnings +="Names cannot be more than 20 characters."
 	case len(user.Quote) > 300:
-		warnings = append(warnings, "The Length Of Your Quote Is Too Long(300).")
-	case len(user.Name) > 20:
-		warnings = append(warnings, "Username Cannot Be More Than 20 Characters.")
+		warnings += "The Length Of Your Quote Is Too Long(300). \n"
 	case strings.Contains(user.Name, " "):
-		warnings = append(warnings, "Username Cannot Have Space Between.")
+		warnings += "Username Cannot Have Space Between. \n"
 	}
 	return warnings
 }
