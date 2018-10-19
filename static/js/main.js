@@ -1,6 +1,10 @@
 
     jQuery(document).ready(function($){
 
+        $('.carousel').carousel({
+            interval: false
+        });
+
         $("#upPro").click(function (e) {
             // var selectedCountry = $("#private option:selected").val();
             // alert($("#private option:selected").val());
@@ -79,30 +83,42 @@
         uploadImage();
         function uploadImage() {
             var button = $('.images .pic');
-            var uploader = $("#picsInput");
             var images = $('.images');
 
-            button.on('click', function () {
+            button.on('click', function (e) {
+                e.preventDefault();
+
+                for (var i = 6; i > 0; i--) {
+                    if (!$(`input[name='pic-${i}']`).length){
+                        var nb_attachments = i;
+                    }
+                }
+
+                var $input = $(`<input type="file" id="pic-${nb_attachments}" name="pic-${nb_attachments}">`);
+                $input.hide();
                 if ($(".postImgHelper").length >= 6){
                     errAlert("You can't uer more than 6 pictures in a post.")
                 }else{
-                    uploader.click()
+                    $input.click()
                 }
+
+                $input.on('change', function () {
+                    $('form').append($(this));
+                    var reader = new FileReader();
+                    reader.onload = function(event) {
+                        images.prepend(`<div class="postImgHelper" data-inputid="pic-${nb_attachments}" style="background-image: url('${event.target.result}');" rel="${event.target.result}'"><span>remove</span></div>`)
+                    };
+                    reader.readAsDataURL($input[0].files[0])
+
+                });
+
+                images.on('click', '.postImgHelper', function () {
+                    $(this).remove();
+                    var inputid = $(this).data('inputid');
+                    $("#"+inputid).remove();
+                })
+
             });
-
-            uploader.on('change', function () {
-                var reader = new FileReader();
-                reader.onload = function(event) {
-                    images.prepend('<div class="postImgHelper" style="background-image: url(\'' + event.target.result + '\');" rel="'+ event.target.result  +'"><span>remove</span></div>')
-                };
-                reader.readAsDataURL(uploader[0].files[0])
-
-            });
-
-            images.on('click', '.postImgHelper', function () {
-                $(this).remove()
-            })
-
         }
 
         $("#shP").click(function() {

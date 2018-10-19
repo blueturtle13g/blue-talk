@@ -113,3 +113,20 @@ func insertTagRel(tagId, postId int) (ItsId int) {
 
 	return ItsId
 }
+
+func insertPicRel(postId int, pics []string) (ItsId int) {
+	for _, pic := range pics{
+		err := DB.QueryRow(
+			"insert into picRel(pic, postId) values($1, $2) returning postId;",
+			pic, postId).Scan(&ItsId)
+		if err != nil {
+			fmt.Println(err)
+		}
+		if ItsId < 1{
+			fmt.Println("inseritng one of pic rels failed")
+		}
+	}
+
+
+	return ItsId
+}

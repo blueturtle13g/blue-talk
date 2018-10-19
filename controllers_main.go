@@ -29,8 +29,12 @@ func IndexHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	posts := getAllPosts("")
 	for i := range posts{
 		// we are limiting the length of its text and tags
-		posts[i].Text = posts[i].Text[:50] + "..."
-		posts[i].Tags = posts[i].Tags[:3]
+		if len(posts[i].Text) > 130{
+			posts[i].Text = posts[i].Text[:130] + " ..."
+		}
+		if len(posts[i].Tags) > 3{
+			posts[i].Tags = posts[i].Tags[:3]
+		}
 	}
 	gotFlash["Posts"] = posts
 
@@ -165,8 +169,12 @@ func SearchHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) 
 	posts := getAllPosts("like")
 	for i := range posts{
 		// we are limiting the length of its text and tags
-		posts[i].Text = posts[i].Text[:50] + "..."
-		posts[i].Tags = posts[i].Tags[:3]
+		if len(posts[i].Text) > 130{
+			posts[i].Text = posts[i].Text[:130] + " ..."
+		}
+		if len(posts[i].Tags) > 3{
+			posts[i].Tags = posts[i].Tags[:3]
+		}
 	}
 	gotFlash["Posts"] = posts
 	if err := tpl.ExecuteTemplate(w, "search.gohtml", gotFlash); err != nil {

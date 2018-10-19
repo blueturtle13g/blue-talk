@@ -10,8 +10,8 @@
     <button class ="cancel yes" >Cancel</button>
 </div>
 <div id="errBox" class="alertBox unvis" >
-    <div class ="message" ></div>
-    <button class ="no" >OK</button>
+    <div id="errMsg" class ="message" ></div>
+    <button id="DangerBut" class ="no" >OK</button>
 </div>
 
 <div id="congBox" class="alertBox unvis" >
@@ -22,36 +22,17 @@
 <script>
     jQuery(document).ready(function($){
 
-        init()
+        {{ if .Posts }}
+        init();
+        {{end}}
         function init() {
-
-            // I made this func in order to be able to send the user
-            // in the field I want
-            var proFields = {{ if .ProField }} {{.ProField}} {{else}} "" {{end}};
-            switch(proFields) {
-                case "posts":
-                    $("#postsField").click();
-                    break;
-                case "messages":
-                    $("#messagesField").click();
-                    break;
-                case "followings":
-                    $("#followingsField").click();
-                    break;
-                case "followersField":
-                    $("#followersField").click();
-                    break;
-                default:
-                    $("#detailsField").click();
-            }
-
         {{range .Posts }}
             var id = {{.Id}};
             for (var i = 0; i < {{len .Pics}}; i++) {
                 if (i === 0) {
-                    $("#picRanger" +{{.Id}}).append(`<li data-target='unique${id}' data-slide-to='0' class='active'></li>`);
+                    $("#picRanger" +{{.Id}}).append(`<li data-target='#unique${id}' data-slide-to='0' class='active'></li>`);
                 } else {
-                    $("#picRanger" +{{.Id}}).append(`<li data-target='unique${id}' data-slide-to='${i}'></li>`);
+                    $("#picRanger" +{{.Id}}).append(`<li data-target='#unique${id}' data-slide-to='${i}'></li>`);
                 }
             }
         {{end}}

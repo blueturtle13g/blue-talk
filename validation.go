@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
+	"strconv"
 )
 
 func (user User) Validate(pwd, confirm string) (warnings []string) {
@@ -49,6 +50,9 @@ func (user User) UpValidate() (warnings string) {
 	case len(user.Name) < 3 || len(user.FirstName) < 3 || len(user.LastName) < 3:
 		warnings +="Names cannot be less than 3 Characters."
 	case len(user.Phone) < 11 && len(user.Phone) != 0:
+		if _, err := strconv.Atoi(user.Phone); err != nil{
+			warnings +="Phone cannot consist non-numeric Characters."
+		}
 		warnings +="Phone cannot be less than 11 Characters."
 	case len(user.Name) > 20 || len(user.FirstName) > 20 || len(user.LastName) > 20:
 		warnings +="Names cannot be more than 20 characters."

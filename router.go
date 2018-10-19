@@ -34,10 +34,21 @@ func Routes() {
 	router.ServeFiles("/static/*filepath", http.Dir("static"))
 	router.GET("/out", LogOutHandler)
 	router.GET("/about", AboutHandler)
-	//router.GET("/tag:id", TagHandler)
-	//router.GET("/user/:id", UserHandler)
+
 	router.GET("/profile/:id", ProfileHandler)
 	router.POST("/profile/:id", ProfileProcess)
+
+	//router.GET("/profile/:id/message", MessageHandler)
+	//router.POST("/profile/:id/message", MessageProcess)
+
+	router.GET("/profile/:id/post", MakePostHandler)
+	router.POST("/profile/:id/post", MakePostProcess)
+
+	router.GET("/profile/:id/message", MessageHandler)
+	router.POST("/profile/:id/message", MessageProcess)
+
+	//router.GET("/post/:id", PostHandler)
+	//router.POST("/post/:id", PostProcess)
 
 	router.GET("/", IndexHandler)
 	//router.POST("/", IndexProcess)

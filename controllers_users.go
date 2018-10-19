@@ -77,71 +77,23 @@ func ProfileHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params
 	} else {
 		gotFlash["Err"] = cong
 	}
-	gotFlash["Posts"] = getUserPosts(cUser.Name)
+
+	posts := getUserPosts(cUser.Name)
+	for i := range posts{
+		// we are limiting the length of its text and tags
+		if len(posts[i].Text) > 130{
+			posts[i].Text = posts[i].Text[:130] + " ..."
+		}
+		if len(posts[i].Tags) > 3{
+			posts[i].Tags = posts[i].Tags[:3]
+		}
+	}
+	gotFlash["Posts"] = posts
 	gotFlash["User"], gotFlash["Title"], gotFlash["Username"] = cUser, cUser.Name, cUser.Name
 	if err := tpl.ExecuteTemplate(w, "profile.gohtml", gotFlash); err != nil {
 		fmt.Println(err)
 	}
 }
-
-//func EditProfileHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-//	session := sessionManager.Load(r)
-//	var cUser User
-//	var psUser User
-//	parameter := ps.ByName("id")
-//	userId, err := strconv.Atoi(parameter)
-//	if err != nil {
-//		psUser = getUserByName(parameter)
-//	} else {
-//		psUser = getUserById(userId)
-//	}
-//	if UserId, err := session.GetInt("UserId"); err != nil {
-//		fmt.Println(err)
-//	} else if UserId > 0 {
-//		cUser = getUserById(UserId)
-//	} else if UserId < 1 || UserId != psUser.Id {
-//		http.Redirect(w, r, "/", 303)
-//		return
-//	}
-//	gotFlash := make(map[string]interface{})
-//	if err := session.PopObject(w, "sentFlash", &gotFlash); err != nil {
-//		fmt.Println(err)
-//	}
-//
-//	gotFlash["User"], gotFlash["Title"], gotFlash["Username"] = cUser, cUser.Name, cUser.Name
-//
-//	if err := tpl.ExecuteTemplate(w, "editProfile.gohtml", gotFlash); err != nil {
-//		fmt.Println(err)
-//	}
-//}
-//func MakePostProcess(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-//	session := sessionManager.Load(r)
-//	var cUser User
-//	var psUser User
-//	parameter := ps.ByName("id")
-//	userId, err := strconv.Atoi(parameter)
-//	if err != nil {
-//		psUser = getUserByName(parameter)
-//	} else {
-//		psUser = getUserById(userId)
-//	}
-//	if UserId, err := session.GetInt("UserId"); err != nil {
-//		fmt.Println(err)
-//	} else if UserId > 0 {
-//		cUser = getUserById(UserId)
-//	} else if UserId < 1 || UserId != psUser.Id {
-//		http.Redirect(w, r, "/", 303)
-//		return
-//	}
-//	sentFlash := make(map[string]interface{})
-//
-//	r.ParseMultipartForm(32 << 20) // 32MB is the default used by FormFile
-//	fhs := r.MultipartForm.File["myfiles"]
-//	for _, fh := range fhs {
-//		f, err := fh.Open()
-//		// f is one of the files
-//	}
-//}
 
 func ProfileProcess(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	session := sessionManager.Load(r)
@@ -297,72 +249,10 @@ func ProfileProcess(w http.ResponseWriter, r *http.Request, ps httprouter.Params
 		http.Redirect(w, r, "/profile/"+cUser.Name, 302)
 		return
 	}
-	if submit == "post"{
-		sentFlash := make(map[string]interface{})
-		text := r.FormValue("text")
-		tags := tagFinder(text)
-		var maxFileSize int64 = 15 * 1000 * 1000 //limit upload file to 15m
-		if r.ContentLength > maxFileSize {
-			sentFlash["PostErr"] = "The Maximum Size Of Post Picture Is 15M."
-			sentFlash["Text"] = text
-			sentFlash["ProField"] = "posts"
-			if err := session.PutObject(w, "sentFlash", sentFlash); err != nil {
-				fmt.Println(err)
-			}
-			http.Redirect(w, r, "/profile/"+cUser.Name, 303)
-			return
-		}
-
-		r.ParseMultipartForm(15 << 20)
-
-		fhs := r.MultipartForm.File["pics"]
-		var picNames []string
-		for _, fh := range fhs {
-			file, err := fh.Open()
-
-			if err != http.ErrMissingFile && len(fh.Filename) != 0{
-				if valid := detectFileType(file); !valid {
-					sentFlash["PostErr"] = "Please Upload An Image, Other Types Are Not Supported."
-					sentFlash["Text"] = text
-					sentFlash["ProField"] = "posts"
-					if err := session.PutObject(w, "sentFlash", sentFlash); err != nil {
-						fmt.Println(err)
-					}
-					http.Redirect(w, r, "/profile/"+cUser.Name, 303)
-					return
-				}
-				defer file.Close()
-				picNames = append(picNames, processPostPic(file))
-			}else{
-				sentFlash["PostErr"] = "At least add one image to your post"
-				sentFlash["Text"] = text
-				sentFlash["ProField"] = "posts"
-				if err := session.PutObject(w, "sentFlash", sentFlash); err != nil {
-					fmt.Println(err)
-				}
-				http.Redirect(w, r, "/profile/"+cUser.Name, 303)
-				return
-			}
-		}
-
-
-		newPost := Post{Text: text, By: cUser.Name}
-
-		var postId int
-		if postId = insertPost(newPost); postId < 1 {
-			fmt.Println("insertPost failed.")
-			return
-		}
-
-		processTag(postId, tags)
-		http.Redirect(w, r, "/profile/"+cUser.Name, 302)
-		return
-	}
 
 	upUser := User{Id: cUser.Id, Name: strings.TrimSpace(username), FirstName: strings.TrimSpace(firstName), LastName: strings.TrimSpace(lastName), Email: strings.TrimSpace(email) , Phone: strings.TrimSpace(phone), Quote: strings.TrimSpace(quote), Private: private}
 	//if validation of form failed
 	if warnings := upUser.UpValidate(); len(warnings) > 0 {
-		fmt.Println("warnings: ",warnings)
 		w.Write([]byte(warnings))
 		return
 	}
@@ -377,4 +267,151 @@ func ProfileProcess(w http.ResponseWriter, r *http.Request, ps httprouter.Params
 	}
 
 	w.Write([]byte("done"))
+}
+
+
+func MakePostHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	session := sessionManager.Load(r)
+	var cUser User
+	var psUser User
+	parameter := ps.ByName("id")
+	userId, err := strconv.Atoi(parameter)
+	if err != nil {
+		psUser = getUserByName(parameter)
+	} else {
+		psUser = getUserById(userId)
+	}
+	if UserId, err := session.GetInt("UserId"); err != nil {
+		fmt.Println(err)
+	} else if UserId > 0 {
+		cUser = getUserById(UserId)
+	} else if UserId < 1 || UserId != psUser.Id {
+		http.Redirect(w, r, "/", 303)
+		return
+	}
+	gotFlash := make(map[string]interface{})
+	if err := session.PopObject(w, "sentFlash", &gotFlash); err != nil {
+		fmt.Println(err)
+	}
+
+	gotFlash["Title"], gotFlash["Username"] = "Make Post", cUser.Name
+
+	if err := tpl.ExecuteTemplate(w, "makePost.gohtml", gotFlash); err != nil {
+		fmt.Println(err)
+	}
+}
+
+func MakePostProcess(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	session := sessionManager.Load(r)
+	var cUser User
+	var psUser User
+	parameter := ps.ByName("id")
+	userId, err := strconv.Atoi(parameter)
+	if err != nil {
+		psUser = getUserByName(parameter)
+	} else {
+		psUser = getUserById(userId)
+	}
+	if UserId, err := session.GetInt("UserId"); err != nil {
+		fmt.Println(err)
+	} else if UserId > 0 {
+		cUser = getUserById(UserId)
+	} else if UserId < 1 || UserId != psUser.Id {
+		http.Redirect(w, r, "/", 303)
+		return
+	}
+	sentFlash := make(map[string]interface{})
+	text := r.FormValue("text")
+	tags := tagFinder(text)
+	var maxFileSize int64 = 15 * 1000 * 1000 //limit upload file to 15m
+	if r.ContentLength > maxFileSize {
+		sentFlash["PostErr"] = "The Maximum Size Of Post Picture Is 15M."
+		sentFlash["Text"] = text
+		sentFlash["ProField"] = "posts"
+		if err := session.PutObject(w, "sentFlash", sentFlash); err != nil {
+			fmt.Println(err)
+		}
+		http.Redirect(w, r, "/profile/"+cUser.Name+"/post", 303)
+		return
+	}
+
+	var picNames []string
+	for i := 1; i < 7; i++ {
+		file, FileHeader, err := r.FormFile("pic-"+strconv.Itoa(i))
+		if err != nil {
+			fmt.Println(err)
+		}
+		// we examine the existence of the pic in two ways, first we see if
+		// err is not equal to missingFile error, then get the length of the
+		// filename, if both are ok
+		if err != http.ErrMissingFile && len(FileHeader.Filename) != 0 {
+			defer file.Close()
+			if valid := detectFileType(file); !valid {
+				sentFlash["PostErr"] = "Please Upload An Image, Other Types Are Not Supported."
+				sentFlash["Text"] = text
+				sentFlash["ProField"] = "posts"
+				if err := session.PutObject(w, "sentFlash", sentFlash); err != nil {
+					fmt.Println(err)
+				}
+				http.Redirect(w, r, "/profile/"+cUser.Name+"/post", 303)
+				return
+			}
+			picNames = append(picNames, processPostPic(file))
+		}
+	}
+
+	if len(picNames) == 0{
+		sentFlash["PostErr"] = "At least add one image to your post"
+		sentFlash["Text"] = text
+		sentFlash["ProField"] = "posts"
+		if err := session.PutObject(w, "sentFlash", sentFlash); err != nil {
+		fmt.Println(err)
+		}
+		http.Redirect(w, r, "/profile/"+cUser.Name+"/post", 303)
+		return
+	}
+	fmt.Println("picNames: ",picNames)
+
+	newPost := Post{Text: text, By: cUser.Name}
+
+	var postId int
+	if postId = insertPost(newPost, picNames); postId < 1 {
+		fmt.Println("insertPost failed.")
+		return
+	}
+
+	processTag(postId, tags)
+	http.Redirect(w, r, "/profile/"+cUser.Name+"/post", 302)
+}
+
+
+func MakeMessageHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	session := sessionManager.Load(r)
+	var cUser User
+	var psUser User
+	parameter := ps.ByName("id")
+	userId, err := strconv.Atoi(parameter)
+	if err != nil {
+		psUser = getUserByName(parameter)
+	} else {
+		psUser = getUserById(userId)
+	}
+	if UserId, err := session.GetInt("UserId"); err != nil {
+		fmt.Println(err)
+	} else if UserId > 0 {
+		cUser = getUserById(UserId)
+	} else if UserId < 1 || UserId != psUser.Id {
+		http.Redirect(w, r, "/", 303)
+		return
+	}
+	gotFlash := make(map[string]interface{})
+	if err := session.PopObject(w, "sentFlash", &gotFlash); err != nil {
+		fmt.Println(err)
+	}
+
+	gotFlash["Title"], gotFlash["Username"], gotFlash["Msgs"] = "Messages", cUser.Name, getUserMessages(cUser.Id)
+
+	if err := tpl.ExecuteTemplate(w, "makePost.gohtml", gotFlash); err != nil {
+		fmt.Println(err)
+	}
 }

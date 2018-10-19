@@ -120,7 +120,7 @@ func getPostPics(postId int) (pics []string) {
 //	return post, ItsComments, ItsTags, ItsPics
 //}
 
-func insertPost(post Post) (ItsId int) {
+func insertPost(post Post, picNames []string) (ItsId int) {
 	err := DB.QueryRow(
 		"INSERT INTO posts(text,by,createdOn) VALUES($1,$2,$3) returning id;",
 		post.Text, post.By, getNow()).Scan(&ItsId)
@@ -128,6 +128,9 @@ func insertPost(post Post) (ItsId int) {
 		fmt.Println(err)
 	}
 
+	if affect := insertPicRel(ItsId, picNames); affect == 0{
+		fmt.Println("inserting picrel failed.")
+	}
 	return ItsId
 }
 

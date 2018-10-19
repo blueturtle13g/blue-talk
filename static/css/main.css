@@ -1,4 +1,4 @@
-* {box-sizing: border-box;}
+* {box-sizing: border-box!important;}
 
 a {text-decoration: none;}
 
@@ -16,6 +16,18 @@ a {text-decoration: none;}
   }
 }
 
+#errMsg{
+  background-color: #462424!important;
+}
+
+#DangerBut{
+  background-color: #2a2d31!important;
+}
+
+#errBox{
+  background-color: #c34255f5!important;
+}
+
 .unvis{
   display: none;
 }
@@ -29,6 +41,10 @@ a {text-decoration: none;}
   background:#fd4d48d6;
 }
 
+#picOptions{
+  left: -6.5rem!important;
+}
+
 .inputOk{
   text-align: center;
   margin: 0 auto;
@@ -39,8 +55,8 @@ a {text-decoration: none;}
 }
 
 .proInfo{
-  height: 600px!important;
-  border: 1px solid red!important;
+  height: 600px;
+  overflow: hidden;
 }
 
 .alert{
@@ -91,7 +107,7 @@ a {text-decoration: none;}
 }
 
 body{
-   font-family: 'Ubuntu', sans-serif;
+  font-family: 'Niramit', sans-serif;
 }
 
 .margTop{
@@ -239,8 +255,26 @@ justify-content: space-between;
 }
 /*end*/
 
+.cardText{
+  color: white!important;
+  margin-top: -1.5rem!important;
+  font-size: 14px!important;
+}
+
+.cardText a:hover{
+  color: #ffffff;
+}
+
 
 /*for showing users*/
+
+.margTopMd{
+  margin-top: 7rem;
+}
+
+.margBut2{
+  margin-top: -2rem;
+}
 
 .card {
   display: inline-block;
@@ -248,10 +282,10 @@ justify-content: space-between;
   position: relative;
   border: 1px solid #CCC;
   border-radius: 8px;
-  height: 500px;
+  height: 400px;
   text-align: center;
   padding: 0;
-  margin: 0;
+  margin: 0 -4px 0 0;
   background-color: #284c79;
   color: rgb(136, 172, 217);
 }
@@ -267,6 +301,7 @@ justify-content: space-between;
   /* This positions the canvas under the text */
   z-index: 1;
 }
+
 .card .avatar {
   position: relative;
   margin-top: 15px;
@@ -274,9 +309,8 @@ justify-content: space-between;
 }
 
 
-
 .imgHeight{
-  max-height: 250px;
+  height: 300px;
 }
 
 .card .avatar img {
@@ -305,7 +339,7 @@ justify-content: space-between;
 }
 .images .postImgHelper {
   width: 112px;
-  height: 200px;
+  height: 290px;
   background-size: cover;
   margin-right: 10px;
   background-position: center;
