@@ -23,8 +23,8 @@ func getUserComs(username string) (coms []Com) {
 	return coms
 }
 
-func getStoriesComments(storyId int) (ItsComments []Com) {
-	rows, err := DB.Query("SELECT * FROM coms where storyId = $1 order by id desc", storyId)
+func getPostComments(postId int) (ItsComments []Com) {
+	rows, err := DB.Query("SELECT * FROM coms where postId = $1 order by id desc", postId)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -40,7 +40,7 @@ func getStoriesComments(storyId int) (ItsComments []Com) {
 }
 
 func insertCom(com Com) (comId int) {
-	err := DB.QueryRow("INSERT INTO coms(comId, storyId, text, by, createdOn) VALUES($1,$2,$3,$4,$5) returning id;", com.ComId, com.PostId, com.Text, com.By, getNow()).Scan(&comId)
+	err := DB.QueryRow("INSERT INTO coms(comId, postId, text, by, createdOn) VALUES($1,$2,$3,$4,$5) returning id;", com.ComId, com.PostId, com.Text, com.By, getNow()).Scan(&comId)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -65,13 +65,13 @@ func updateCom(id int, text string) int64 {
 	return affect
 }
 
-func deletePost(storyId int) int64 {
-	stmt, err := DB.Prepare("delete from catRel where storyId=$1")
+func deletePost(postId int) int64 {
+	stmt, err := DB.Prepare("delete from catRel where postId=$1")
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	res, err := stmt.Exec(storyId)
+	res, err := stmt.Exec(postId)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -83,12 +83,12 @@ func deletePost(storyId int) int64 {
 	if catRelAffect < 1 {
 		fmt.Println("catRel didn't get changed.")
 	}
-	stmt, err = DB.Prepare("delete from tagRel where storyId=$1")
+	stmt, err = DB.Prepare("delete from tagRel where postId=$1")
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	res, err = stmt.Exec(storyId)
+	res, err = stmt.Exec(postId)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -100,12 +100,12 @@ func deletePost(storyId int) int64 {
 	if tagRelAffect < 1 {
 		fmt.Println("tagRel didn't get changed.")
 	}
-	stmt, err = DB.Prepare("delete from comrel where storyid=$1")
+	stmt, err = DB.Prepare("delete from comrel where postid=$1")
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	res, err = stmt.Exec(storyId)
+	res, err = stmt.Exec(postId)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -122,7 +122,7 @@ func deletePost(storyId int) int64 {
 		fmt.Println(err)
 	}
 
-	res, err = stmt.Exec(storyId)
+	res, err = stmt.Exec(postId)
 	if err != nil {
 		fmt.Println(err)
 	}

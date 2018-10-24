@@ -104,21 +104,21 @@ func getPostPics(postId int) (pics []string) {
 	return pics
 }
 
-//func getPostById(postId int) (post Post, ItsComments []Com, ItsTags []Tag, ItsPics []Pic) {
-//	rows, err := DB.Query("SELECT * FROM posts where id = $1", postId)
-//	if err != nil {
-//		fmt.Println(err)
-//		return
-//	}
-//	for rows.Next() {
-//		rows.Scan(&post.Id, &post.Text, &post.By, &post., &post.ViewCount, &post.Like, &post.CreatedOn, &post.UpdatedOn, &post.DeletedOn)
-//	}
-//
-//	ItsPics = getPostsComments(postId)
-//	ItsComments = getPostsPics(postId)
-//	ItsTags = getPostsTags(postId)
-//	return post, ItsComments, ItsTags, ItsPics
-//}
+func getPostById(postId int) (post Post, ItsComments []Com) {
+	rows, err := DB.Query("SELECT * FROM posts where id = $1", postId)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	for rows.Next() {
+		rows.Scan(&post.Id, &post.Text, &post.By, &post.ViewCount, &post.Like, &post.CreatedOn, &post.UpdatedOn, &post.DeletedOn)
+	}
+
+	post.Pics = getPostPics(postId)
+	ItsComments = getPostComments(postId)
+	post.Tags = getPostTags(postId)
+	return post, ItsComments
+}
 
 func insertPost(post Post, picNames []string) (ItsId int) {
 	err := DB.QueryRow(

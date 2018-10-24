@@ -26,11 +26,12 @@ func IndexHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	}
 	gotFlash["Title"] = "Blue Talk"
 	gotFlash["Username"] = cUser.Name
+	gotFlash["Notis"] = getUserNotifications(cUser.Id)
 	posts := getAllPosts("")
 	for i := range posts{
 		// we are limiting the length of its text and tags
-		if len(posts[i].Text) > 130{
-			posts[i].Text = posts[i].Text[:130] + " ..."
+		if len(posts[i].Text) > 100{
+			posts[i].Text = posts[i].Text[:100] + " ..."
 		}
 		if len(posts[i].Tags) > 3{
 			posts[i].Tags = posts[i].Tags[:3]
@@ -87,6 +88,7 @@ func AboutHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	}
 	gotFlash["Title"] = "About"
 	gotFlash["Username"] = cUser.Name
+	gotFlash["Notis"] = getUserNotifications(cUser.Id)
 
 	if err := tpl.ExecuteTemplate(w, "about.gohtml", gotFlash); err != nil {
 		fmt.Println(err)
@@ -107,6 +109,7 @@ func ContactHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params)
 	}
 	gotFlash["Title"] = "Contact"
 	gotFlash["Username"] = cUser.Name
+	gotFlash["Notis"] = getUserNotifications(cUser.Id)
 
 	if err := tpl.ExecuteTemplate(w, "contact.gohtml", gotFlash); err != nil {
 		fmt.Println(err)
@@ -166,17 +169,27 @@ func SearchHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) 
 	}
 	gotFlash["Title"] = "Search"
 	gotFlash["Username"] = cUser.Name
+	gotFlash["Notis"] = getUserNotifications(cUser.Id)
 	posts := getAllPosts("like")
 	for i := range posts{
 		// we are limiting the length of its text and tags
-		if len(posts[i].Text) > 130{
-			posts[i].Text = posts[i].Text[:130] + " ..."
+		if len(posts[i].Text) > 100{
+			posts[i].Text = posts[i].Text[:100] + " ..."
 		}
 		if len(posts[i].Tags) > 3{
 			posts[i].Tags = posts[i].Tags[:3]
 		}
 	}
 	gotFlash["Posts"] = posts
+	users := getAllUsers()
+	for i := range users{
+		// we are limiting the length of its text and tags
+		if len(users[i].Bio) > 70{
+			users[i].Bio = users[i].Bio[:70] + " ..."
+		}
+	}
+
+	gotFlash["Users"] = users
 	if err := tpl.ExecuteTemplate(w, "search.gohtml", gotFlash); err != nil {
 		fmt.Println(err)
 	}

@@ -65,6 +65,10 @@ func LogInProcess(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		return
 	}
 	// password is correct
+
+	if affect := setUserOnline(UserId); affect < 1{
+		fmt.Println("setting user to active mode failed.")
+	}
 	if err := session.PutInt(w, "UserId", cUser.Id); err != nil {
 		fmt.Println(err)
 	}
@@ -73,10 +77,19 @@ func LogInProcess(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 
 func LogOutHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	session := sessionManager.Load(r)
+	var time int
+	var err error
+	for k, v := range r.URL.Query() {
+		if k == "time"{
+			if time, err = strconv.Atoi(v[0]); err != nil{
+				fmt.Println(err)
+			}
+		}
+	}
 	if userId, err := session.GetInt("UserId"); err != nil {
 		fmt.Println(err)
 	} else {
-		if affect := updateLastLog(userId); affect < 1 {
+		if affect := logOutProcess(userId, time); affect < 1 {
 			fmt.Println("update last log didn't work")
 		}
 	}
@@ -107,13 +120,6 @@ func RegisterProcess(w http.ResponseWriter, r *http.Request, _ httprouter.Params
 	session := sessionManager.Load(r)
 	sentFlash := make(map[string]interface{})
 
-	if logged, err := session.Exists("UserId"); err != nil {
-		fmt.Println(err)
-	} else if logged {
-		http.Redirect(w, r, "/", 302)
-		return
-	}
-
 	submit := r.FormValue("submit")
 	username := r.FormValue("username")
 	if submit == "CheckName" {
@@ -139,6 +145,13 @@ func RegisterProcess(w http.ResponseWriter, r *http.Request, _ httprouter.Params
 		} else {
 			w.Write([]byte("Available"))
 		}
+		return
+	}
+
+	if logged, err := session.Exists("UserId"); err != nil {
+		fmt.Println(err)
+	} else if logged {
+		http.Redirect(w, r, "/", 302)
 		return
 	}
 

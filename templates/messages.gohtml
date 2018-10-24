@@ -1,0 +1,12 @@
+{{ template "header.gohtml" .}}
+<div class="margTopEx">
+{{ if .MsgHeaders}}
+    {{ range .MsgHeaders}}
+        {{.To}}: {{.LastMsg}}
+    {{end}}
+{{end}}
+
+    <a href="/profile/{{.Username}}/following">Send New Message</a>
+</div>
+
+{{ template "footer.gohtml" .}}

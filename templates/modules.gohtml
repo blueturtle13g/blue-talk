@@ -1,40 +1,57 @@
-{{ define "searchNav"}}
-<div class="absolute">
-  <div class="sort">
-    <form  {{ if eq .Title "Categories"}} action="/cats" {{ else if eq .Title "Writers"}} action="/writers" {{else}} action="/" {{end}}method="post">
-
-      <div id="search">
-        <div class="search-container">
-          <button type="submit"><i class="fa fa-search"></i></button>
-          <input type="text" name="search" id="searchBar" {{ if eq .Title "Categories"}} placeholder="Categories" {{ else if eq .Title "Writers"}} placeholder="Writers" {{else}} placeholder="Titles Tags Stories..." {{end}}>
+{{ define "post"}}
+{{ if .Posts }}
+    {{range .Posts }}
+    <div class="card col-md-3 col-sm-4 col-xs-6">
+        <div id="unique{{.Id}}" class="carousel slide card-img-top" data-ride="carousel">
+            <ol id="picRanger{{.Id}}" class="carousel-indicators"></ol>
+            <div class="carousel-inner">
+            {{ $firstPic := (index .Pics 0)}}
+            {{ if gt (len .Pics) 0}}
+              {{ range .Pics }}
+                  <div class="carousel-item {{ if eq . $firstPic }} active {{end}}">
+                      <img class="d-block w-100 imgHeight" src="/static/pic/posts/{{.}}" alt="slide">
+                  </div>
+              {{end}}
+            {{else}}
+                <div class="carousel-item active">
+                    <img class="d-block w-100 imgHeight" src="/static/pic/posts/{{ $firstPic }}" alt="slide">
+                </div>
+            {{end}}
+            </div>
+            <a class="carousel-control-prev" href="#unique{{.Id}}" role="button" data-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="sr-only">Previous</span>
+            </a>
+            <a class="carousel-control-next" href="#unique{{.Id}}" role="button" data-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="sr-only">Next</span>
+            </a>
         </div>
-      </div>
-
-      <div class="order hid">
-        Order by <br>
-        <label for="rate" class="control-label">Rate</label>
-        <input type="radio" id="rate" name="order" value="rate" checked />
-        <label for="date" class="control-label">Date</label>
-        <input type="radio" id="date" name="order" value="date" />
-      </div>
-
-      <div class="order hid">
-        Priority <br>
-        <label for="asc" class="control-label">Asc</label>
-        <input type="radio" id="asc" name="priority" value="asc" />
-        <label for="desc" class="control-label">Desc</label>
-        <input type="radio" id="desc" name="priority" value="desc" checked />
-      </div>
-
-      <div class="order">
-        <div class="btn-group">
-          <button type="button" class="btn btn-info"><a style="color: black; text-decoration: none;" href="/cats">Categories</a></button>
-          <button type="button" class="btn btn-info"><a style="color: black; text-decoration: none;" href="/writers">Writers</a></button>
+        <div class="card-body cardText">
+            <p class="card-text">{{ .Text }}</p><br>
+            <p class="card-text {{if .Text }} margBut25 {{end}}"><small>By</small> <a href="/user/{{ .By }}">{{.By }}</a>&Tab;
+                <small> On {{ .CreatedOn }}&Tab;</small><a href="/post/{{.Id}}"><span class="fa fa-chevron-circle-right fa-lg"></span></a></p>
+            <p class="card-text {{if .Text }} margBut15 {{end}}">{{range .Tags }}<a href="/tag/{{.Name}}"> #{{.Name}} {{end}}</a></p>
         </div>
+    </div>
+    {{end}}
+{{end}}
+{{ end }} <!-- searchBar -->
+
+{{ define "user"}}
+{{if .Users }}
+  {{range .Users }}
+      <div class="card col-2 proCard">
+          <canvas class="header-bg" width="250" height="70" id="header-blur"></canvas>
+          <div class="avatar">
+              <img class="src-image" {{ if .Pic }} src="/static/pic/pros/{{.Pic}}" {{else}} src="http://ssl.gstatic.com/accounts/ui/avatar_2x.png" {{end}} />
+          </div>
+          <div class="content">
+              <p class="card-text"><a href="/user/{{.Name}}">{{.Name}}</a>
+                  <br>
+                  <small>{{.Bio}}</small></p>
+          </div>
       </div>
-
-    </form>
-  </div>
-</div>
-
- {{ end }} <!-- searchBar -->
+  {{end}}
+{{end}}
+{{ end }} <!-- searchBar -->

@@ -7,8 +7,12 @@ import (
 
 type User struct {
 	Id                                                  											 int
-	IsActive, Private											 									 bool
-	Name, FirstName, LastName, Email, Phone, Password, Pic, Quote, LastLog, CreatedOn, DeactivatedOn string
+	IsOnline, Private											 									 bool
+	Name, FirstName, LastName, Email, Phone, Password, Pic, Bio, LastLog, CreatedOn, DeactivatedOn string
+}
+type Noti struct {
+	UserId, RelatedPostId 		int
+	RelatedUsername, Condition, CreatedOn	string
 }
 
 func searchUsers(word string) (users []User) {
@@ -21,7 +25,7 @@ func searchUsers(word string) (users []User) {
 	}
 	var user User
 	for rows.Next() {
-		rows.Scan(&user.Id, &user.Name, &user.FirstName, &user.LastName, &user.Email, &user.Phone, &user.Password, &user.Pic, &user.Quote, &user.IsActive, &user.Private, &user.LastLog, &user.CreatedOn, &user.DeactivatedOn)
+		rows.Scan(&user.Id, &user.Name, &user.FirstName, &user.LastName, &user.Email, &user.Phone, &user.Password, &user.Pic, &user.Bio, &user.IsOnline, &user.Private, &user.LastLog, &user.CreatedOn, &user.DeactivatedOn)
 		users = append(users, user)
 	}
 	return users
@@ -66,7 +70,7 @@ func getUserByName(Name string) (user User) {
 		fmt.Println(err)
 	}
 	for rows.Next() {
-		rows.Scan(&user.Id, &user.Name, &user.FirstName, &user.LastName, &user.Email, &user.Phone, &user.Password, &user.Pic, &user.Quote, &user.IsActive, &user.Private, &user.LastLog, &user.CreatedOn, &user.DeactivatedOn)
+		rows.Scan(&user.Id, &user.Name, &user.FirstName, &user.LastName, &user.Email, &user.Phone, &user.Password, &user.Pic, &user.Bio, &user.IsOnline, &user.Private, &user.LastLog, &user.CreatedOn, &user.DeactivatedOn)
 	}
 	return user
 }
@@ -79,7 +83,7 @@ func getUsersByIds(ids []int) (users []User) {
 			fmt.Println(err)
 		}
 		for rows.Next() {
-			rows.Scan(&user.Id, &user.Name, &user.FirstName, &user.LastName, &user.Email, &user.Phone, &user.Password, &user.Pic, &user.Quote, &user.IsActive, &user.Private, &user.LastLog, &user.CreatedOn, &user.DeactivatedOn)
+			rows.Scan(&user.Id, &user.Name, &user.FirstName, &user.LastName, &user.Email, &user.Phone, &user.Password, &user.Pic, &user.Bio, &user.IsOnline, &user.Private, &user.LastLog, &user.CreatedOn, &user.DeactivatedOn)
 		}
 		users = append(users, user)
 	}
@@ -88,7 +92,7 @@ func getUsersByIds(ids []int) (users []User) {
 
 func insertUser(user User) (ItsId int) {
 	err := DB.QueryRow(
-		"INSERT INTO users(name,firstName,lastName,email,password,createdOn) VALUES($1,$2,$3,$4,$5,$6) returning id;",
+		"INSERT INTO users(name,firstName,lastName,email,password,isOnline,createdOn) VALUES($1,$2,$3,$4,$5,true,$6) returning id;",
 		user.Name, user.FirstName, user.LastName, user.Email, user.Password, getNow()).Scan(&ItsId)
 	if err != nil {
 		fmt.Println(err)
@@ -96,17 +100,86 @@ func insertUser(user User) (ItsId int) {
 	return ItsId
 }
 
-func getAllUsers(order string) (users []User) {
+func insertFollowRel(followerId, followedId int, accepted bool) (ItsId int) {
+	// if there is already a relation is our database with
+	// these users, we don't duplicate it and just return 1
+	err := DB.QueryRow(
+		"INSERT INTO followRel VALUES($1,$2,$3) returning followerId;",
+		followerId, followedId, accepted).Scan(&ItsId)
+	if err != nil {
+		fmt.Println(err)
+	}
+	return ItsId
+}
+
+func insertNotification(userId int, relatedUsername string, relatedPostId int, condition, time string) (ItsId int) {
+	err := DB.QueryRow(
+		"INSERT INTO notiRel VALUES($1,$2,$3,$4,$5) returning userId;",
+		userId, relatedUsername, relatedPostId, condition, time).Scan(&ItsId)
+	if err != nil {
+		fmt.Println(err)
+	}
+	return ItsId
+}
+
+func getUserNotifications(userId int) (notis []Noti){
+	rows, err := DB.Query("select * from notiRel where userId = $1 order by createdOn desc limit 5", userId)
+	if err != nil {
+		fmt.Println(err)
+	}
+	for rows.Next() {
+		var noti Noti
+		rows.Scan(&noti.UserId, &noti.RelatedUsername, &noti.RelatedPostId, &noti.Condition, &noti.CreatedOn)
+		// we obtain the name of notification sender from the beginning of the text field
+
+		notis = append(notis, noti)
+	}
+	return notis
+}
+
+func getAllUsers() (users []User) {
 	rows, err := DB.Query("select * from users order by id desc")
 	if err != nil {
 		fmt.Println(err)
 	}
 	var user User
 	for rows.Next() {
-		rows.Scan(&user.Id, &user.Name, &user.FirstName, &user.LastName, &user.Email, &user.Phone, &user.Password, &user.Pic, &user.Quote, &user.IsActive, &user.Private, &user.LastLog, &user.CreatedOn, &user.DeactivatedOn)
+		rows.Scan(&user.Id, &user.Name, &user.FirstName, &user.LastName, &user.Email, &user.Phone, &user.Password, &user.Pic, &user.Bio, &user.IsOnline, &user.Private, &user.LastLog, &user.CreatedOn, &user.DeactivatedOn)
 		users = append(users, user)
 	}
 	return users
+}
+
+func getUserFollowings(id int) (users []User){
+	rows, err := DB.Query("select followedId from followRel where followerId = $1", id)
+	if err != nil {
+		fmt.Println(err)
+	}
+	var followed int
+	for rows.Next() {
+		rows.Scan(&followed)
+		user := getUserById(followed)
+		users = append(users, user)
+	}
+	return users
+}
+
+func deleteFollowRel(followerId, followedId int) int64 {
+	stmt, err := DB.Prepare("delete from followRel where followerId = $1 and followedId = $2")
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	res, err := stmt.Exec(followerId, followedId)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	affect, err := res.RowsAffected()
+	if err != nil {
+		fmt.Println(err)
+	}
+	return affect
 }
 
 func deactiveUserById(UserId int) int64 {
@@ -126,13 +199,13 @@ func deactiveUserById(UserId int) int64 {
 	return affect
 }
 
-func updateLastLog(userId int) int64 {
-	stmt, err := DB.Prepare("update users set lastLog= $1 where id= $2")
+func logOutProcess(userId int, time int) int64 {
+	stmt, err := DB.Prepare("update users set lastLog= $1, isOnline = false where id= $2")
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	res, err := stmt.Exec(getNow(), userId)
+	res, err := stmt.Exec(time, userId)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -142,6 +215,67 @@ func updateLastLog(userId int) int64 {
 		fmt.Println(err)
 	}
 	return affect
+}
+
+func setUserOnline(userId int) int64 {
+	stmt, err := DB.Prepare("update users set isOnline = true where id= $1")
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	res, err := stmt.Exec( userId)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	affect, err := res.RowsAffected()
+	if err != nil {
+		fmt.Println(err)
+	}
+	return affect
+}
+
+func followState(cUserId, psUserId int) (cUserFollowState, psUserFollowState string) {
+	rows, err := DB.Query("select followerId, accepted from followRel where followerId = $1 and followedId = $2", cUserId, psUserId)
+	if err != nil {
+		fmt.Println(err)
+	}
+	var id int
+	var accepted bool
+	for rows.Next() {
+		err = rows.Scan(&id, &accepted)
+		if err != nil {
+			fmt.Println(err)
+		}
+	}
+	if id > 0 && accepted == false{
+		cUserFollowState = "sent"
+	}else if id > 0 && accepted == true{
+		cUserFollowState = "accepted"
+	}else{
+		cUserFollowState = "nil"
+	}
+
+	rows, err = DB.Query("select followerId, accepted from followRel where followerId = $1 and followedId = $2", psUserId, cUserId)
+	if err != nil {
+		fmt.Println(err)
+	}
+	var id2 int
+	var accepted2 bool
+	for rows.Next() {
+		err = rows.Scan(&id2, &accepted2)
+		if err != nil {
+			fmt.Println(err)
+		}
+	}
+	if id2 > 0 && accepted2 == false{
+		psUserFollowState = "sent"
+	}else if id2 > 0 && accepted2 == true{
+		psUserFollowState = "accepted"
+	}else{
+		psUserFollowState = "nil"
+	}
+	return cUserFollowState, psUserFollowState
 }
 
 func deleteUserPic(userId int) int64 {
@@ -186,11 +320,11 @@ func updateUser(upUser User) int64 {
 	// e.g. if we use upUser.Name to find its coms, it'll return nothing.
 	// because there is no comment record with updated name
 	notUpUser := getUserById(upUser.Id)
-	stmt, err := DB.Prepare("update users set name= $1, firstName= $2, lastName= $3, email= $4, phone= $5, quote= $6, private= $7 where id= $8")
+	stmt, err := DB.Prepare("update users set name= $1, firstName= $2, lastName= $3, email= $4, phone= $5, bio= $6, private= $7 where id= $8")
 	if err != nil {
 		fmt.Println(err)
 	}
-	res, err := stmt.Exec(upUser.Name, upUser.FirstName, upUser.LastName, upUser.Email , upUser.Phone, upUser.Quote, upUser.Private, upUser.Id)
+	res, err := stmt.Exec(upUser.Name, upUser.FirstName, upUser.LastName, upUser.Email , upUser.Phone, upUser.Bio, upUser.Private, upUser.Id)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -266,6 +400,8 @@ func getUserPosts(username string) (posts []Post) {
 	var post Post
 	for rows.Next() {
 		rows.Scan(&post.Id, &post.Text, &post.By, &post.ViewCount, &post.Like, &post.CreatedOn, &post.UpdatedOn, &post.DeletedOn)
+		post.Pics = getPostPics(post.Id)
+		post.Tags = getPostTags(post.Id)
 		posts = append(posts, post)
 	}
 	return posts
@@ -278,7 +414,7 @@ func getUserById(UserId int) (user User) {
 		fmt.Println(err)
 	}
 	for rows.Next() {
-		rows.Scan(&user.Id, &user.Name, &user.FirstName, &user.LastName, &user.Email, &user.Phone, &user.Password, &user.Pic, &user.Quote, &user.IsActive, &user.Private, &user.LastLog, &user.CreatedOn, &user.DeactivatedOn)
+		rows.Scan(&user.Id, &user.Name, &user.FirstName, &user.LastName, &user.Email, &user.Phone, &user.Password, &user.Pic, &user.Bio, &user.IsOnline, &user.Private, &user.LastLog, &user.CreatedOn, &user.DeactivatedOn)
 	}
 	return user
 }

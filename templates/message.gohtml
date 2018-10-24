@@ -1,0 +1,19 @@
+{{ template "header.gohtml" .}}
+<div class="margTopEx">
+{{ if .Msgs }}
+{{ range .Msgs }}
+    <div {{ if eq .From .Username }} class="containerMsg darker"{{else}} class="containerMsg" {{end}}>
+        <img src="/static/pic/pros/{{.ToPic}}" alt="Avatar" {{ if eq .From .Username }} class="right"{{end}}>
+        <p>{{.Text}}</p>
+        <span {{ if eq .From .Username }} class="time-left"{{else}} class="time-right" {{end}}>{{.CreatedOn}}</span>
+    </div>
+{{end}}
+{{end}}
+    <div>
+        <textarea id="text" cols="30" rows="10"></textarea>
+        <button class="btn-primary">Send</button>
+    </div>
+</div>
+
+
+{{ template "footer.gohtml" .}}

@@ -1,6 +1,7 @@
 * {box-sizing: border-box!important;}
 
 a {text-decoration: none;}
+button{cursor: pointer}
 
 @media screen and (max-width: 600px) {
   .limit{
@@ -14,6 +15,10 @@ a {text-decoration: none;}
     margin: 3px!important;
     padding: 6px!important;
   }
+}
+
+.width200{
+  width: 200px;
 }
 
 #errMsg{
@@ -55,7 +60,7 @@ a {text-decoration: none;}
 }
 
 .proInfo{
-  height: 600px;
+  height: 535px;
   overflow: hidden;
 }
 
@@ -122,10 +127,6 @@ body{
   margin-top: 10rem;
 }
 
-.fa-search{
-  cursor: pointer;
-}
-
 .limit{
   width: 350px;
 }
@@ -139,7 +140,7 @@ body{
 nav {
   font-family: 'Montserrat', sans-serif;
   font-weight: bold;
-  z-index: 1;
+  z-index: 100;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -159,7 +160,7 @@ nav a {
 }
 
 .navActive{
-  background: #8e8b8580;
+  color: #6238c5;
 }
 
 nav a:hover {
@@ -167,9 +168,48 @@ nav a:hover {
   text-decoration: none;
 }
 
-.formCon{
-margin-top: 7rem;
+#notiCon{
+  position: relative;
 }
+
+#notibubble {
+  font-size: 12px;
+  width: 400px;
+  height: 215px;
+  margin-left: -171px;
+  background: #a9a9a9;
+  position: absolute;
+  -moz-border-radius: 10px;
+  -webkit-border-radius: 10px;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+#notibubble a {
+  text-transform: lowercase;
+  color: #04040e;
+  padding: 0;
+  margin: 0;
+  border-radius: 0;
+  position: absolute;
+  bottom: .3rem;
+  right: .5rem;
+}
+
+#notibubble p {
+  color: #04040e;
+  position: absolute;
+  top: .2rem;
+  left: .5rem;
+}
+#notibubble a:hover {
+  text-decoration: underline;
+}
+
+.formCon{
+margin-top: 4rem;
+}
+
 .formCon label{
 margin-top: .5rem;
 }
@@ -214,10 +254,12 @@ justify-content: space-between;
 
 /*for search bar*/
 .abWide{
-  width: 100%;
-  z-index: 1;
+  width: 350px;
+  z-index: 20;
   position: fixed;
   top: 5rem;
+  left: 50%;
+  margin-left: -175px;
 }
 
 #custom-search-input{
@@ -242,6 +284,21 @@ justify-content: space-between;
   color: #666666;
   padding: 0 8px 0 10px;
   border-left: solid 1px #ccc;
+  cursor: pointer;
+}
+
+#custom-search-input button:hover{
+  color: cadetblue;
+  font-size: 21px;
+}
+
+.src-image{
+  width: 200px;
+  height: 200px;
+}
+
+.margBut15{
+  margin-top: -1.5rem!important;
 }
 
 #custom-search-input button:hover{
@@ -257,14 +314,13 @@ justify-content: space-between;
 
 .cardText{
   color: white!important;
-  margin-top: -1.5rem!important;
+  margin-top: -1rem!important;
   font-size: 14px!important;
 }
 
-.cardText a:hover{
+.card a:hover{
   color: #ffffff;
 }
-
 
 /*for showing users*/
 
@@ -272,7 +328,11 @@ justify-content: space-between;
   margin-top: 7rem;
 }
 
-.margBut2{
+.margBut25{
+  margin-top: -2.5rem;
+}
+
+.margBut20{
   margin-top: -2rem;
 }
 
@@ -299,18 +359,21 @@ justify-content: space-between;
   height: 70px;
   border-bottom: 1px #FFF solid;
   /* This positions the canvas under the text */
-  z-index: 1;
 }
 
 .card .avatar {
   position: relative;
   margin-top: 15px;
-  z-index: 100;
 }
 
 
 .imgHeight{
   height: 300px;
+}
+
+.proCard{
+  height: 200px!important;
+  width: 250px!important;
 }
 
 .card .avatar img {
@@ -462,4 +525,56 @@ justify-content: space-between;
 #chPL{
   margin-left: 1.4rem;
   cursor: pointer;
+}
+
+/*message page*/
+
+/* Chat containerMsgs */
+.containerMsg {
+  border: 2px solid #dedede;
+  background-color: #f1f1f1;
+  border-radius: 5px;
+  padding: 10px;
+  margin: 10px 0;
+}
+
+/* Darker chat containerMsg */
+.darker {
+  border-color: #ccc;
+  background-color: #ddd;
+}
+
+/* Clear floats */
+.containerMsg::after {
+  content: "";
+  clear: both;
+  display: table;
+}
+
+/* Style images */
+.containerMsg img {
+  float: left;
+  max-width: 60px;
+  width: 100%;
+  margin-right: 20px;
+  border-radius: 50%;
+}
+
+/* Style the right image */
+.containerMsg img.right {
+  float: right;
+  margin-left: 20px;
+  margin-right:0;
+}
+
+/* Style time text */
+.time-right {
+  float: right;
+  color: #aaa;
+}
+
+/* Style time text */
+.time-left {
+  float: left;
+  color: #999;
 }

@@ -4,7 +4,6 @@ import (
 	"crypto/sha1"
 	"database/sql"
 	"fmt"
-	_ "github.com/lib/pq"
 	"io"
 	"mime/multipart"
 	"net/http"
@@ -12,9 +11,15 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+
+	_ "github.com/lib/pq"
+	"log"
+	"image/jpeg"
+	"github.com/nfnt/resize"
+	"image"
 )
 
-func main(){
+func main() {
 	defer DB.Close()
 	Routes()
 }
@@ -98,41 +103,41 @@ func picSha(pic multipart.File) string {
 	return fmt.Sprintf("%x", h.Sum(nil))
 }
 
-func processPostPic(file multipart.File) (picName string) {
+func processPic(file multipart.File, username, condition string) (picName string) {
 	wd, err := os.Getwd()
 	if err != nil {
 		fmt.Println(err)
 	}
-	// create sha for file name
-	picName = picSha(file) + ".jpg"
-	path := filepath.Join(wd, "static", "pic", "posts", picName)
-	nf, err := os.Create(path)
-	if err != nil {
-		fmt.Println(err)
+	picName = picSha(file) + "-" +username+ ".jpg"
+	var path string
+	if condition == "pros"{
+		path = filepath.Join(wd, "static", "pic", "pros", picName)
+	}else if condition == "posts"{
+		path = filepath.Join(wd, "static", "pic", "posts", picName)
 	}
-	defer nf.Close()
-	// copy
-	file.Seek(0, 0)
-	io.Copy(nf, file)
-	return picName
-}
 
-func processProPic(file multipart.File, user User) (picName string) {
-	wd, err := os.Getwd()
-	if err != nil {
-		fmt.Println(err)
-	}
-	// create sha for file name
-	picName = picSha(file) + ".jpg"
-	path := filepath.Join(wd, "static", "pic", "pros", picName)
 	nf, err := os.Create(path)
 	if err != nil {
 		fmt.Println(err)
 	}
 	defer nf.Close()
-	// copy
+
 	file.Seek(0, 0)
-	io.Copy(nf, file)
+	img, err := jpeg.Decode(file)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var m image.Image
+	if condition == "pros"{
+		m = resize.Resize(350, 400, img, resize.Lanczos3)
+	}else if condition == "posts"{
+		m = resize.Resize(337, 300, img, resize.Lanczos3)
+	}
+
+	// write new image to file
+	jpeg.Encode(nf, m, nil)
+
 	return picName
 }
 
@@ -173,6 +178,48 @@ func getUniqueInt(intSlice []int) []int {
 	}
 	return list
 }
+
+func getUniqueString(stringSlice []string) []string {
+	keys := make(map[string]bool)
+	var list []string
+	for _, entry := range stringSlice {
+		if _, value := keys[entry]; !value {
+			keys[entry] = true
+			list = append(list, entry)
+		}
+	}
+	return list
+}
+//
+//func getLastMsgs(msgHeaders []MsgH) (UniqueMsgHeaders []MsgH) {
+//	var msgTos []string
+//	// first we range over all headers and get their destination(to)
+//	// and put them in a slice
+//	for _, v := range msgHeaders{
+//		msgTos = append(msgTos, v.To)
+//	}
+//	// then we delete repeated destinations(to) from our list
+//	// so we have all
+//	uniqueTos := getUniqueString(msgTos)
+//
+//	for _, to := range uniqueTos{
+//		for _, msgHeader := range msgHeaders{
+//			if msgHeader.To == to{
+//
+//			}
+//		}
+//	}
+//
+//	var biggestId int
+//	for _ , msgHeader := range msgHeaders {
+//		if msgHeader.Id > biggestId{
+//			biggestId = msgHeader.Id
+//		}
+//	}
+//
+//	return UniqueMsgHeaders
+//}
+
 //
 //func getUniqueTag(TagSlice []Tag) []Tag {
 //	keys := make(map[Tag]bool)

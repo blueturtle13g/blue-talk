@@ -17,10 +17,9 @@ var (
 
 func init() {
 	tpl = template.Must(template.ParseGlob("templates/*"))
-	sessionManager.Lifetime(time.Hour * 6) // Set the maximum session lifetime to 1 hour.
+	sessionManager.Lifetime(time.Hour * 12) // Set the maximum session lifetime to 12 hour.
 	sessionManager.Persist(false)          // Persist the session after a user has closed their browser.
 }
-
 
 //func port() string {
 //	port := os.Getenv("PORT")
@@ -28,15 +27,18 @@ func init() {
 //	return port
 //}
 
-
 func Routes() {
 	router := httprouter.New()
 	router.ServeFiles("/static/*filepath", http.Dir("static"))
 	router.GET("/out", LogOutHandler)
 	router.GET("/about", AboutHandler)
+	router.GET("/profile/:id/following", FollowingHandler)
 
 	router.GET("/profile/:id", ProfileHandler)
 	router.POST("/profile/:id", ProfileProcess)
+
+	router.GET("/user/:id", UserHandler)
+	router.POST("/user/:id", UserProcess)
 
 	//router.GET("/profile/:id/message", MessageHandler)
 	//router.POST("/profile/:id/message", MessageProcess)
@@ -44,8 +46,11 @@ func Routes() {
 	router.GET("/profile/:id/post", MakePostHandler)
 	router.POST("/profile/:id/post", MakePostProcess)
 
-	router.GET("/profile/:id/message", MessageHandler)
-	router.POST("/profile/:id/message", MessageProcess)
+	router.GET("/profile/:id/messages", MessagesHandler)
+	//router.POST("/profile/:id/messages", MessagesProcess)
+
+	router.GET("/profile/:id/messages/:to", MessageHandler)
+	//router.POST("/profile/:id/messages/:to", MessageProcess)
 
 	//router.GET("/post/:id", PostHandler)
 	//router.POST("/post/:id", PostProcess)

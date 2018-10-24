@@ -49,14 +49,15 @@ func (user User) UpValidate() (warnings string) {
 	switch {
 	case len(user.Name) < 3 || len(user.FirstName) < 3 || len(user.LastName) < 3:
 		warnings +="Names cannot be less than 3 Characters."
-	case len(user.Phone) < 11 && len(user.Phone) != 0:
+	case len(user.Phone) >= 11 && len(user.Phone) != 0:
 		if _, err := strconv.Atoi(user.Phone); err != nil{
 			warnings +="Phone cannot consist non-numeric Characters."
 		}
+	case len(user.Phone) < 11 && len(user.Phone) != 0:
 		warnings +="Phone cannot be less than 11 Characters."
 	case len(user.Name) > 20 || len(user.FirstName) > 20 || len(user.LastName) > 20:
 		warnings +="Names cannot be more than 20 characters."
-	case len(user.Quote) > 300:
+	case len(user.Bio) > 300:
 		warnings += "The Length Of Your Quote Is Too Long(300). \n"
 	case strings.Contains(user.Name, " "):
 		warnings += "Username Cannot Have Space Between. \n"
